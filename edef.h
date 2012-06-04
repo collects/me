@@ -599,13 +599,13 @@ meUByte   lastflag;                     /* Flags, last command          */
 meUByte   alarmState=0;                 /* Unix auto-save alarm time    */
 meUByte   quietMode = 1 ;               /* quiet mode (0=bell)          */
 meUByte   scrollFlag = 1 ;              /* horiz/vert scrolling method  */
-meUByte   sgarbf = meTRUE;              /* meTRUE if screen is garbage  */
-meUByte   clexec = meFALSE;             /* command line execution flag  */
-meUByte   mcStore = meFALSE;            /* storing text to macro flag   */
+meUByte   sgarbf = true;              /* meTRUE if screen is garbage  */
+meUByte   clexec = false;             /* command line execution flag  */
+meUByte   mcStore = false;            /* storing text to macro flag   */
 #if MEOPT_DEBUGM
 meUByte   macbug = 0 ;                  /* macro debuging flag          */
 #endif
-meUByte   cmdstatus = meTRUE;           /* last command status          */
+meUByte   cmdstatus = true;           /* last command status          */
 meUByte   kbdmode=meSTOP;               /* current keyboard macro mode  */
 meUByte   lastReplace=0;                /* set to non-zero if last was a replace */
 meUByte   modeLineFlags=                /* current modeline flags       */

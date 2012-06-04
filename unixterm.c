@@ -560,7 +560,7 @@ waitForEvent(int mode)
 #if MEOPT_SOCKET
            isTimerExpired(SOCKET_TIMER_ID) ||
 #endif
-           (sgarbf == meTRUE))
+           (sgarbf == true))
             break ;
 
         TTdieTest() ;
@@ -1407,7 +1407,7 @@ meXEventHandler(void)
             if ((hh != frame->depth+1) || (ww != frame->width))
                 meFrameSetWindowSize(frame) ;
             if(sizeSet && !screenUpdateDisabledCount)
-                screenUpdate(meTRUE,2-sgarbf) ;
+                screenUpdate(true,2-sgarbf) ;
         }
         break;
     case Expose:
@@ -2127,7 +2127,7 @@ special_bound:
                      */
                     int savcle ;
                     savcle = clexec ;
-                    clexec = meFALSE ;
+                    clexec = false ;
                     exitEmacs(1,3) ;
                     clexec = savcle ;
                 }
@@ -2396,7 +2396,7 @@ int
 TCAPopen(void)
 {
     if(alarmState & meALARM_PIPED)
-        return meTRUE ;
+        return true ;
 
 #ifdef _USG
     ntermio = otermio;
@@ -2489,7 +2489,7 @@ TCAPopen(void)
     }
 
     /* Success */
-    return meTRUE ;
+    return true ;
 }
 
 /*
@@ -2501,7 +2501,7 @@ int
 TCAPclose(void)
 {
     if(alarmState & meALARM_PIPED)
-        return meTRUE ;
+        return true ;
 
     mlerase(MWERASE|MWCURSOR);
     TCAPschemeReset() ;
@@ -2540,7 +2540,7 @@ TCAPclose(void)
     ioctl (0, TIOCSETC, &otchars) ;
 #endif
     ioctl (0, TIOCSLTC, &oltchars) ;
-    return meTRUE;
+    return true;
 #endif
 }
 
@@ -2631,7 +2631,7 @@ TCAPaddColor(meUByte index, meUByte r, meUByte g, meUByte b)
     }
     colTable[index] = jj ;
 
-    return meTRUE ;
+    return true ;
 }
 
 #endif
@@ -2873,7 +2873,7 @@ XTERMsetFont(char *fontName)
 
     /* Load the basic font into the server */
     if((font=XLoadQueryFont(mecm.xdisplay,fontName)) == NULL)
-        return meFALSE ;
+        return false ;
 
     /* Make sure that the font is legal and we do not get a divide by zero
      * error through zero width characters. */
@@ -2881,7 +2881,7 @@ XTERMsetFont(char *fontName)
         (font->max_bounds.width == 0))
     {
         XUnloadFont (mecm.xdisplay, font->fid);
-        return meFALSE;
+        return false;
     }
 
     /* Font is acceptable - continue to load. */
@@ -2949,7 +2949,7 @@ XTERMsetFont(char *fontName)
     else
         mecm.fontName = NULL ;
 
-    return meTRUE;
+    return true;
 }
 
 static meFrameData *
@@ -3038,7 +3038,7 @@ meFrameXTermInit(meFrame *frame, meFrame *sibling)
         }
         /* An external frame, a new window is required */
         else if((frame->termData = XTERMcreateWindow(frame->width,frame->depth+1)) == NULL)
-            return meFALSE ;
+            return false ;
 #else
         frame->termData = firstFrameData ;
 #endif
@@ -3053,7 +3053,7 @@ meFrameXTermInit(meFrame *frame, meFrame *sibling)
     else
         /* internal frame, just copy the window handler */
         frame->termData = sibling->termData ;
-    return meTRUE ;
+    return true ;
 }
 
 void
@@ -3132,9 +3132,9 @@ XTERMstart(void)
         ss = NULL ;
 
     /* Load the font into the system */
-    if((XTERMsetFont(ss) == meFALSE) &&
-       ((ss == NULL) || (XTERMsetFont(NULL) == meFALSE)))
-        return meFALSE ;
+    if((XTERMsetFont(ss) == false) &&
+       ((ss == NULL) || (XTERMsetFont(NULL) == false)))
+        return false ;
 
     /* Set the default geometry, then look for an override */
     ww = 80 ;
@@ -3182,7 +3182,7 @@ XTERMstart(void)
         } ;
         int ii ;
         for(ii=0 ; ii<7 ; ii++)
-            meAtoms[ii] = XInternAtom(mecm.xdisplay,meAtomNames[ii], meFALSE);
+            meAtoms[ii] = XInternAtom(mecm.xdisplay,meAtomNames[ii], false);
         meAtoms[ii] = XA_STRING ;
     }
 
@@ -3202,7 +3202,7 @@ XTERMstart(void)
     XrmDestroyDatabase(rdb) ;
 
     if((firstFrameData = XTERMcreateWindow(TTwidthDefault,TTdepthDefault)) == NULL)
-        return meFALSE ;
+        return false ;
 
 #ifdef _ME_CONSOLE
 #ifdef _TCAP
@@ -3218,7 +3218,7 @@ XTERMstart(void)
 #endif /* _TCAP */
 #endif /* _ME_CONSOLE */
 
-    return meTRUE ;
+    return true ;
 }
 
 /*
@@ -3336,11 +3336,11 @@ changeFont(int f, int n)
     /* Get the name of the font. If it is specified as default then
      * do not collect the remaining arguments */
     if(meGetString((meUByte *)"Font Name", 0, 0, buff, meBUF_SIZE_MAX) == meABORT)
-        return meFALSE ;
+        return false ;
 
     /* Change the font */
-    if(XTERMsetFont ((char *)buff) == meFALSE)
-        return meFALSE ;
+    if(XTERMsetFont ((char *)buff) == false)
+        return false ;
 
     /* Set up the arguments for a resize operation. Because the
      * font has changed then we need to define the new window
@@ -3374,9 +3374,9 @@ changeFont(int f, int n)
     
     meFrameLoopEnd() ;
 
-    sgarbf = meTRUE;
+    sgarbf = true;
     
-    return meTRUE ;
+    return true ;
 }
 
 int
@@ -3465,7 +3465,7 @@ XTERMaddColor(meColor index, meUByte r, meUByte g, meUByte b)
 
         meFrameLoopEnd() ;
     }
-    return meTRUE ;
+    return true ;
 }
 
 void
@@ -3738,7 +3738,7 @@ TTwaitForChar(void)
              * a very 'rubbery' feel to the scroll bars. This reduces that
              * effect, allowing the server to process all of our outstanding
              * events (typically mecm.xdisplay requests). */
-            XSync (mecm.xdisplay, meFALSE);
+            XSync (mecm.xdisplay, false);
         }
 #endif
 #endif /* _XTERM */
@@ -3751,9 +3751,9 @@ TTwaitForChar(void)
         handleTimerExpired() ;
         if(TTahead())
             break ;
-        if(sgarbf == meTRUE)
+        if(sgarbf == true)
         {
-            update(meFALSE) ;
+            update(false) ;
             mlerase(MWCLEXEC) ;
         }
 #if MEOPT_MWFRAME
@@ -3780,7 +3780,7 @@ TTsleep(int  msec, int  intable, meVarList *waitVarList)
     meUByte *ss ;
     int sgarbfOld ;
 
-    if(intable && ((kbdmode == mePLAY) || (clexec == meTRUE)))
+    if(intable && ((kbdmode == mePLAY) || (clexec == true)))
         return ;
 
     if(msec >= 0)
@@ -3792,7 +3792,7 @@ TTsleep(int  msec, int  intable, meVarList *waitVarList)
         return ;
 
     sgarbfOld = sgarbf ;
-    sgarbf = meFALSE ;
+    sgarbf = false ;
     do
     {
         handleTimerExpired() ;
@@ -3911,8 +3911,8 @@ TTahead(void)
 
         if(alarmState & meALARM_WINSIZE)
         {
-            frameChangeWidth(meTRUE,TTnewWid-frameCur->width);     /* Change width */
-            frameChangeDepth(meTRUE,TTnewHig-(frameCur->depth+1)); /* Change depth */
+            frameChangeWidth(true,TTnewWid-frameCur->width);     /* Change width */
+            frameChangeDepth(true,TTnewHig-(frameCur->depth+1)); /* Change depth */
             alarmState &= ~meALARM_WINSIZE ;
         }
         if(TTnoKeys)

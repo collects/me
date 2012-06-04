@@ -412,11 +412,11 @@ meUndoAddUnnarrow(meInt sln, meInt eln, meInt name, meScheme scheme,
         nn->markupCmd = markupCmd ;
         if(markupLine != NULL)
         {
-            nn->markupFlag = meTRUE ;
+            nn->markupFlag = true ;
             meStrcpy(nn->str,meLineGetText(markupLine)) ;
         }
         else
-            nn->markupFlag = meFALSE ;
+            nn->markupFlag = false ;
     }
 }
 #endif
@@ -488,7 +488,7 @@ meUndo(int f, int n)
             undoContFlag++ ;
     }
     else if(!meModeTest(frameCur->bufferCur->mode,MDUNDO))
-        return ctrlg(meFALSE,1) ;
+        return ctrlg(false,1) ;
     else if(n < 0)
         meUndoRemove(frameCur->bufferCur) ;
     else
@@ -526,7 +526,7 @@ meUndo(int f, int n)
                     meLine *ln, *eln, **list ;
                     meInt *lineSort, *undoInfo, dddd ;
                     lineSort = cun->udata.lineSort ;
-                    windowGotoLine(meTRUE,(*lineSort++) + 1) ;
+                    windowGotoLine(true,(*lineSort++) + 1) ;
                     if((list = meMalloc(cun->count * sizeof(meLine *))) == NULL)
                         return meABORT ;
                     undoInfo = meUndoAddLineSort(cun->count) ;
@@ -558,7 +558,7 @@ meUndo(int f, int n)
                     meUndoNarrow *nun = (meUndoNarrow *) cun ;
                     meInt name ;
                     name = nun->name ;
-                    windowGotoLine(meTRUE,nun->udata.dotp+1) ;
+                    windowGotoLine(true,nun->udata.dotp+1) ;
                     if(nun->type & meUNDO_NARROW_ADD)
                     {
                         meNarrow *nrrw ;
@@ -575,7 +575,7 @@ meUndo(int f, int n)
                     {
                         meLine *slp ;
                         slp = frameCur->windowCur->dotLine ;
-                        windowGotoLine(meTRUE,ccount+1) ;
+                        windowGotoLine(true,ccount+1) ;
                         meBufferCreateNarrow(frameCur->bufferCur,slp,frameCur->windowCur->dotLine,
                                              nun->udata.dotp,ccount,name,nun->scheme,
                                              (nun->markupFlag) ? nun->str:NULL,nun->markupCmd,1) ;
@@ -588,7 +588,7 @@ meUndo(int f, int n)
             }
             if(cun->type & meUNDO_REPLACE)
             {
-                windowGotoLine(meTRUE,cun->udata.pos[cdoto-1][0]+1) ;
+                windowGotoLine(true,cun->udata.pos[cdoto-1][0]+1) ;
                 count = cun->udata.pos[cdoto-1][1] ;
                 if(count < 0)
                 {
@@ -601,7 +601,7 @@ meUndo(int f, int n)
             {
                 if(cun->type & meUNDO_CONTINUE)
                     cont = 1 ;
-                windowGotoLine(meTRUE,cun->udata.dotp+1) ;
+                windowGotoLine(true,cun->udata.dotp+1) ;
                 frameCur->windowCur->dotOffset = cdoto ;
             }
             if(cun->type & meUNDO_SINGLE)
@@ -677,6 +677,6 @@ meUndoNext:
         }
         thisflag = meCFUNDO ;
     }
-    return meTRUE ;
+    return true ;
 }
 #endif

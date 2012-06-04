@@ -110,7 +110,7 @@ regexStrCmp(meUByte *str, meUByte *reg, int flags)
     if(flags & meRSTRCMP_USEMAIN)
     {
         rg = &mereRegex ;
-        srchLastState = meFALSE ;
+        srchLastState = false ;
     }
     else
         rg = &meRegexStrCmp ;
@@ -127,13 +127,13 @@ regexStrCmp(meUByte *str, meUByte *reg, int flags)
             if((mereNewlBuf = meRealloc(mereNewlBuf,ii+128)) == NULL)
             {
                 mereNewlBufSz = 0 ;
-                return meFALSE ;
+                return false ;
             }
             mereNewlBufSz = ii+127 ;
         }
         meStrcpy(mereNewlBuf,str) ;
         srchLastMatch = mereNewlBuf ;
-        srchLastState = meTRUE ;
+        srchLastState = true ;
         /* or in the STRCMP bit so that hunt-forw/backward can still determine
          * whether the last main search was magic or not & @s1 also work correctly */ 
         srchLastMagic |= meSEARCH_LAST_MAGIC_STRCMP ;
@@ -249,7 +249,7 @@ setVar(meUByte *vname, meUByte *vvalue, meRegister *regs)
 #if MEOPT_EXTENDED
     case TKVAR:
         if(SetUsrLclCmdVar(nn,vvalue,&usrVarList) == NULL)
-            return meFALSE ;
+            return false ;
         break ;
     case TKLVR:
         {
@@ -268,7 +268,7 @@ setVar(meUByte *vname, meUByte *vvalue, meRegister *regs)
             else
                 bp = frameCur->bufferCur ;
             if(SetUsrLclCmdVar(nn,vvalue,&(bp->varList)) == NULL)
-                return meFALSE ;
+                return false ;
             break ;
         }
     case TKCVR:
@@ -291,7 +291,7 @@ setVar(meUByte *vname, meUByte *vvalue, meRegister *regs)
             else if((varList = regs->varList) == NULL)
                 return mlwrite(MWABORT,(meUByte *)"[No such variable]");
             if(SetUsrLclCmdVar(nn,vvalue,varList) == NULL)
-                return meFALSE ;
+                return false ;
             break ;
         }
     
@@ -342,7 +342,7 @@ setVar(meUByte *vname, meUByte *vvalue, meRegister *regs)
                 /* use the macro string to key evaluator to get the value,
                  * must set this up carefully and restore state */
                 savcle = clexec;        /* save execution mode */
-                clexec = meTRUE;      /* get the argument */
+                clexec = true;      /* get the argument */
                 saves = execstr ;
                 execstr = vvalue ;
                 ii = meGetKey(meGETKEY_SILENT) ;
@@ -542,7 +542,7 @@ setVar(meUByte *vname, meUByte *vvalue, meRegister *regs)
                     TTkillClientServer ();
 #endif
                 /* may changes may case a redraw so always redraw next time */
-                sgarbf = meTRUE ;
+                sgarbf = true ;
                 break;
             }
 #if MEOPT_WORDPRO
@@ -599,7 +599,7 @@ setVar(meUByte *vname, meUByte *vvalue, meRegister *regs)
             break ;
 #endif
         case EVFRMDPTH:
-            return frameChangeDepth(meTRUE,meAtoi(vvalue)-(frameCur->depth+1));
+            return frameChangeDepth(true,meAtoi(vvalue)-(frameCur->depth+1));
 #if MEOPT_EXTENDED
         case EVFRMID:
             frameCur->id = meAtoi(vvalue) ;
@@ -609,11 +609,11 @@ setVar(meUByte *vname, meUByte *vvalue, meRegister *regs)
                 meFree(frameTitle) ;
             frameTitle = meStrdup(vvalue) ;
             /* force a redraw */
-            sgarbf = meTRUE ;
+            sgarbf = true ;
             break;
 #endif
         case EVFRMWDTH:
-            return frameChangeWidth(meTRUE,meAtoi(vvalue)-frameCur->width);
+            return frameChangeWidth(true,meAtoi(vvalue)-frameCur->width);
         case EVABSCOL:
             return setcwcol(meAtoi(vvalue));
 #if MEOPT_EXTENDED
@@ -623,20 +623,20 @@ setVar(meUByte *vname, meUByte *vvalue, meRegister *regs)
             if((status=meAtoi(vvalue)) < 0)
             {
                 frameCur->windowCur->markOffset = 0 ;
-                return meFALSE ;
+                return false ;
             }
             else if(status && ((frameCur->bufferCur->intFlag & BIFNACT) == 0) &&
                     (frameCur->windowCur->markLine != NULL) &&
                     (status > meLineGetLength(frameCur->windowCur->markLine)))
             {
                 frameCur->windowCur->markOffset = meLineGetLength(frameCur->windowCur->markLine) ;
-                return meFALSE ;
+                return false ;
             }
             frameCur->windowCur->markOffset = status ;
-            return meTRUE ;
+            return true ;
         case EVWMRKLINE:
             if((status=meAtoi(vvalue)) < 0)
-                return meFALSE ;
+                return false ;
             frameCur->windowCur->markOffset = 0 ;
             if(status == 0)
             {
@@ -654,7 +654,7 @@ setVar(meUByte *vname, meUByte *vvalue, meRegister *regs)
                 odotp = frameCur->windowCur->dotLine ;
                 lineno = frameCur->windowCur->dotLineNo ;
                 odoto = frameCur->windowCur->dotOffset ;
-                if((status = windowGotoLine(meTRUE,status)) > 0)
+                if((status = windowGotoLine(true,status)) > 0)
                 {
                     frameCur->windowCur->markLine = frameCur->windowCur->dotLine ;
                     frameCur->windowCur->markLineNo = frameCur->windowCur->dotLineNo ;
@@ -664,31 +664,31 @@ setVar(meUByte *vname, meUByte *vvalue, meRegister *regs)
                 frameCur->windowCur->dotOffset = odoto ;
                 return status ;
             }
-            return meTRUE ;
+            return true ;
 #endif
         case EVCURCOL:
             if((status=meAtoi(vvalue)) < 0)
             {
                 frameCur->windowCur->dotOffset = 0 ;
-                return meFALSE ;
+                return false ;
             }
             else if(status && ((frameCur->bufferCur->intFlag & BIFNACT) == 0) &&
                     (status > meLineGetLength(frameCur->windowCur->dotLine)))
             {
                 frameCur->windowCur->dotOffset = meLineGetLength(frameCur->windowCur->dotLine) ;
-                return meFALSE ;
+                return false ;
             }
             frameCur->windowCur->dotOffset = status ;
-            return meTRUE ;
+            return true ;
         case EVCURLINE:
             if((status=meAtoi(vvalue)) <= 0)
-                return meFALSE ;
+                return false ;
             if(frameCur->bufferCur->intFlag & BIFNACT)
             {
                 frameCur->windowCur->dotLineNo = status ;
-                return meTRUE ;
+                return true ;
             }
-            return windowGotoLine(meTRUE,status) ;
+            return windowGotoLine(true,status) ;
         case EVWINCHRS:
             {
                 meUByte cc ;
@@ -727,7 +727,7 @@ setVar(meUByte *vname, meUByte *vvalue, meRegister *regs)
                 frameCur->windowCur->updateFlags |= WFREDRAW ;        /* Force a screen update */
                 updCursor(frameCur->windowCur) ;
             }
-            return meTRUE ;
+            return true ;
         case EVWXCLSCROLL:
             if((status=meAtoi(vvalue)) < 0)
                 status = 0 ;
@@ -739,7 +739,7 @@ setVar(meUByte *vname, meUByte *vvalue, meRegister *regs)
                 frameCur->windowCur->updateFlags |= WFREDRAW ;        /* Force a screen update */
                 updCursor(frameCur->windowCur) ;
             }
-            return meTRUE ;
+            return true ;
         case EVWYSCROLL:
             if((status=meAtoi(vvalue)) < 0)
                 status = 0 ;
@@ -751,7 +751,7 @@ setVar(meUByte *vname, meUByte *vvalue, meRegister *regs)
                 frameCur->windowCur->updateFlags |= WFMAIN|WFSBOX|WFLOOKBK ;
                 reframe(frameCur->windowCur) ;
             }
-            return meTRUE ;
+            return true ;
 #endif
         case EVCBUFNAME:
             unlinkBuffer(frameCur->bufferCur) ;
@@ -854,12 +854,12 @@ setVar(meUByte *vname, meUByte *vvalue, meRegister *regs)
         case EVGLOBSCHM:
             globScheme = convertUserScheme(meAtoi(vvalue),globScheme);
             frameCur->video.lineArray[frameCur->depth].endp = frameCur->width ;
-            sgarbf = meTRUE ;
+            sgarbf = true ;
             TTsetBgcol() ;
             break ;
         case EVTRNCSCHM:
             trncScheme = convertUserScheme(meAtoi(vvalue),trncScheme);
-            sgarbf = meTRUE ;
+            sgarbf = true ;
             break ;
         case EVBUFSCHM:
             frameCur->bufferCur->scheme = convertUserScheme(meAtoi(vvalue),frameCur->bufferCur->scheme);
@@ -1081,7 +1081,7 @@ setVar(meUByte *vname, meUByte *vvalue, meRegister *regs)
 #if MEOPT_EXTENDED
         case EVRECENTKEYS:
             if(vvalue[0] != '\0')
-                return meFALSE ;
+                return false ;
             TTkeyBuf[TTnextKeyIdx] = 0 ;
             break ;
 #endif
@@ -1102,14 +1102,14 @@ setVar(meUByte *vname, meUByte *vvalue, meRegister *regs)
              * EVSYSRET EVUSEX, EVVERSION, EVWMDLINE, EVEOBLINE or system dependant vars
              * where this isn't the system (e.g. use-x) which cant be set
              */
-            return meFALSE ;
+            return false ;
         }
         break ;
     default:
         /* else its not legal....bitch */
         return mlwrite(MWABORT,(meUByte *)"[No such variable]");
     }
-    return meTRUE ;
+    return true ;
 }
 
 static meUByte *
@@ -1540,7 +1540,7 @@ getval(meUByte *tkn)   /* find the value of a token */
         {
             int ii ;
             
-            if(srchLastState != meTRUE)
+            if(srchLastState != true)
                 return abortm ;
             if((ii=tkn[2]-'0') == 0)
                 return srchLastMatch ;
@@ -1649,7 +1649,7 @@ getval(meUByte *tkn)   /* find the value of a token */
                 {
                     /* intercative single char read which will be quoted */
                     int cc ;
-                    key = meGetKeyFromUser(meFALSE,0,meGETKEY_SILENT|meGETKEY_SINGLE) ;
+                    key = meGetKeyFromUser(false,0,meGETKEY_SILENT|meGETKEY_SINGLE) ;
                     if((cc=quoteKeyToChar(key)) > 0)
                     {
                         if(tkn[3] == 'k')
@@ -1662,7 +1662,7 @@ getval(meUByte *tkn)   /* find the value of a token */
                     }
                 }
                 else
-                    key = meGetKeyFromUser(meFALSE, 1, 0) ;
+                    key = meGetKeyFromUser(false, 1, 0) ;
                 if(!kk)
                 {
                     meUInt arg ;
@@ -1877,9 +1877,9 @@ getval(meUByte *tkn)   /* find the value of a token */
                     helpStr = NULL ;
                 ret = (ret & 0x02) ? mlCR_QUOTE_CHAR:0 ;
                 
-                clexec = meFALSE ;
+                clexec = false ;
                 ret = mlCharReply(prompt,ret,ss,helpStr) ;
-                clexec = meTRUE ;
+                clexec = true ;
                 if(ret < 0)
                     return abortm ;
                 evalResult[0] = ret ;
@@ -2096,7 +2096,7 @@ gtfun(meUByte *fname)  /* evaluate a function given name of function */
             regs = gmaLocalRegPtr ;
             if((ii > 0) && (funcTypes[fnum] & FUN_GETVAR) &&
                ((varVal = getval(arg1)) == abortm))
-                ii = meFALSE ;
+                ii = false ;
         }
         else
 #endif
@@ -2573,7 +2573,7 @@ gtfun(meUByte *fname)  /* evaluate a function given name of function */
     case UFBNOT:       return(meItoa(~meAtoi(arg1))) ;
     case UFBOR:        return(meItoa(meAtoi(arg1) |  meAtoi(arg2)));
     case UFBXOR:       return(meItoa(meAtoi(arg1) ^  meAtoi(arg2)));
-    case UFNOT:        return(meLtoa(meAtol(arg1) == meFALSE));
+    case UFNOT:        return(meLtoa(meAtol(arg1) == false));
     case UFAND:        return(meLtoa(meAtol(arg1) && meAtol(arg2)));
     case UFOR:         return(meLtoa(meAtol(arg1) || meAtol(arg2)));
     case UFEQUAL:      return(meLtoa(meAtoi(arg1) == meAtoi(arg2)));
@@ -3331,7 +3331,7 @@ unsetVariable(int f, int n)     /* Delete a variable */
             varList->count-- ;
             meNullFree(vptr->value) ;
             meFree(vptr) ;
-            return meTRUE ;           /* True exit */
+            return true ;           /* True exit */
         }
         if(vnum > 0)
             break ;
@@ -3363,7 +3363,7 @@ setVariable(int f, int n)       /* set a variable */
     if(status <= 0)
         return status ;
     /* get the value for that variable */
-    if(f == meTRUE)
+    if(f == true)
         meStrcpy(value, meItoa(n));
     else if((status = meGetString((meUByte *)"Value", MLFFZERO, 0, value,meBUF_SIZE_MAX)) <= 0)
         return status ;
@@ -3385,7 +3385,7 @@ descVariable(int f, int n)      /* describe a variable */
        ((ss = getval(var)) == NULL))
         return mlwrite(MWABORT,(meUByte *)"Unknown variable type") ;
     mlwrite(0,(meUByte *)"Current setting is \"%s\"", ss) ;
-    return meTRUE ;
+    return true ;
 } 
 
 #if MEOPT_EXTENDED
@@ -3436,7 +3436,7 @@ listVariables (int f, int n)
     int     ii ;
     
     if((wp = meWindowPopup(BvariablesN,(BFND_CREAT|BFND_CLEAR|WPOP_USESTR),NULL)) == NULL)
-        return meFALSE ;
+        return false ;
     bp = wp->buffer ;
     
     addLineToEob(bp,(meUByte *)"Register variables:\n");
@@ -3471,6 +3471,6 @@ listVariables (int f, int n)
     meModeSet(bp->mode,MDVIEW) ;      /* put this buffer view mode */
     resetBufferWindows(bp) ;            /* Update the window */
     mlerase(MWCLEXEC);                  /* clear the mode line */
-    return meTRUE ;
+    return true ;
 }
 #endif

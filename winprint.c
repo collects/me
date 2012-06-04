@@ -346,8 +346,8 @@ constructFontTable (HDC hDC, HFONT *fontTable, int charx, int chary, char *fontN
     for (ii = 0; ii < PFONT_MAX; ii++)
     {
         logfont.lfWeight = (ii & PFONT_BOLD) ? FW_BOLD : FW_NORMAL;
-        logfont.lfItalic = (ii & PFONT_ITALIC) ? meTRUE : meFALSE;
-        logfont.lfUnderline = (ii & PFONT_UNDER) ? meTRUE : meFALSE;
+        logfont.lfItalic = (ii & PFONT_ITALIC) ? true : meFALSE;
+        logfont.lfUnderline = (ii & PFONT_UNDER) ? true : meFALSE;
 
         if (ii == 0)
         {
@@ -374,7 +374,7 @@ constructFontTable (HDC hDC, HFONT *fontTable, int charx, int chary, char *fontN
             }
         }
     }
-    return meTRUE;
+    return true;
 }
 
 /*
@@ -431,7 +431,7 @@ AbortProc(HDC hdc, int nCode)
      * Return the global bPrint flag (which is set to meFALSE
      * if the user presses the Cancel button).
      */
-     return /*(printStatus & PRINT_SPOOLING) ? meTRUE : meFALSE;*/ bPrint;
+     return /*(printStatus & PRINT_SPOOLING) ? true : meFALSE;*/ bPrint;
 }
 
 LRESULT CALLBACK
@@ -449,7 +449,7 @@ AbortPrintJob (HWND hwndDlg,     /* window handle of dialog box     */
             SetDlgItemText(hwndDlg, IDC_FILE, "**NO INFORMATION**");
         else
             SetDlgItemText(hwndDlg, IDC_FILE, printJob);
-        return meTRUE;
+        return true;
 
     case WM_COMMAND:     /* message: received a command */
         /* User pressed "Cancel" button--stop print job. */
@@ -458,7 +458,7 @@ AbortPrintJob (HWND hwndDlg,     /* window handle of dialog box     */
             /*        printStatus &= ~PRINT_SPOOLING;*/
             bPrint = meFALSE;
         }
-        return meTRUE;
+        return true;
     }
     UNREFERENCED_PARAMETER(lParam);
     UNREFERENCED_PARAMETER(wParam);
@@ -631,7 +631,7 @@ done:
     else
         pd->upagey = (pd->papery - xtraDepth) / printer.param [mePI_ROWS].l;
     pd->upapery = (pd->upagey * printer.param[mePI_ROWS].l) + xtraDepth;
-    return meTRUE;
+    return true;
 }
 
 /*
@@ -659,7 +659,7 @@ pcdEnumFontFamiliesCallback (ENUMLOGFONT *lpelf, NEWTEXTMETRIC *lpntm, int fontT
             (strcmp (printer.param [mePI_FONTFACE].p,  lpelf->elfLogFont.lfFaceName) == 0))
             SendMessage ((HWND) lParam, CB_SETCURSEL, index, 0);
     }
-    return meTRUE;
+    return true;
 }
 
 /*
@@ -952,7 +952,7 @@ pcdDialogue (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 #endif
         /* Set up the rows & columns */
         SetTimer (hWnd, PRINT_TIMER_ID, PRINT_TIMER_RESPONSE, (TIMERPROC) pcdTimerCallback);
-        return meTRUE;
+        return true;
 
     case WM_COMMAND:
         switch (LOWORD (wParam))
@@ -985,15 +985,15 @@ pcdDialogue (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                         regSet (regPrint, printNames [ii], printer.param [ii].p);
                 }
             }
-            EndDialog (hWnd, meTRUE);
-            return meTRUE;
+            EndDialog (hWnd, true);
+            return true;
 
         case IDCANCEL:
         case IDC_PC_CANCEL:
-            //            EnableWindow(meFrameGetWinHandle(frameCur), meTRUE);
+            //            EnableWindow(meFrameGetWinHandle(frameCur), true);
             KillTimer (hWnd, 10);
             EndDialog (hWnd, meFALSE);
-            return meTRUE;
+            return true;
 
             /* Buttons */
         case IDC_HEADER:
@@ -1051,7 +1051,7 @@ pcdDialogue (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         /* Schedule an update of the rest of the dialogue. */
         SetTimer (hWnd, PRINT_TIMER_ID, PRINT_TIMER_RESPONSE, (TIMERPROC) pcdTimerCallback);
-        return meTRUE;
+        return true;
     }
     return meFALSE;
 }
@@ -1235,7 +1235,7 @@ WinPrintThread (LPVOID wParam)
         MessageBox (curHwnd, msgbuf, title, MB_ICONEXCLAMATION|MB_OK);
         goto quick_exit;
     }
-    bPrint = meTRUE;
+    bPrint = true;
     printDlg.hDC = NULL;
     printDlg.hDC = printGetDC();
 
@@ -1449,7 +1449,7 @@ error_exit:
 
 dlg_exit:
     /* Abort dialogue is up, destruct the dialogue and enable main window. */
-/*    EnableWindow (curHwnd, meTRUE);*/
+/*    EnableWindow (curHwnd, true);*/
     DestroyWindow (hDlgCancel);
     /* free of colorTbl etc */
     WinPrintSetColor(NULL,-1,0) ;
@@ -1507,7 +1507,7 @@ WinPrint (meUByte *docName, meLine *ihead)
                        (LPVOID) args, 0, &threadId))
         return mlwrite (MWABORT, "Cannot create printing thread");
 
-    return meTRUE;
+    return true;
 }
 
 /*
@@ -1530,7 +1530,7 @@ printSetup (int n)
     if ((n == -2) || (n == 0))
     {
         /* Set up the dialogue box and return the status.
-         * Note that we explicitly test the return status for meTRUE which is
+         * Note that we explicitly test the return status for true which is
          * returned if the dialogue 'Print' button is pressed. Any other value
          * that is returned indicates that the 'Cancel' button was pressed or
          * the dialogue could not be created (-1). */
@@ -1552,7 +1552,7 @@ printSetup (int n)
         if (DialogBox (ttInstance,
                        MAKEINTRESOURCE (IDD_PRINTER_CONFIGURATION),
                        curHwnd,
-                       (DLGPROC) pcdDialogue) != meTRUE)
+                       (DLGPROC) pcdDialogue) != true)
             return meFALSE;
     }
     else if(n > 0)
@@ -1567,7 +1567,7 @@ printSetup (int n)
                         printer.param [mePI_PAGEY].l, printer.param[mePI_SPECY].l,
                         10);
     }
-    return meTRUE;
+    return true;
 }
 
 #endif

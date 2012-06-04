@@ -410,7 +410,7 @@ evalNode(register DIRNODE *dnode, meUByte *pathname, int flags)
         if((dnode->child == NULL) &&
            ((!(dnode->mask & DIR_UNKNOWN) && !(flags & LDO_FORCE)) ||
              (addLinkPath(dnode,pathname) == NULL)))
-            return meTRUE ;
+            return true ;
         dnode = dnode->child ;
     }
     if((dnode->mask & DIR_UNKNOWN) || (flags & LDO_FORCE))
@@ -498,7 +498,7 @@ evalNode(register DIRNODE *dnode, meUByte *pathname, int flags)
                 int flen ;
                 
                 if(TTbreakTest(0))
-                    return ctrlg(meFALSE,1) ;
+                    return ctrlg(false,1) ;
                 /* Get the file and strip off any directory tail */
                 fn = files [ii];
                 flen = meStrlen(fn) - 1 ;
@@ -581,7 +581,7 @@ evalNode(register DIRNODE *dnode, meUByte *pathname, int flags)
         dnode->child = dhead ;
         *ss = '\0' ;
     }
-    return meTRUE ;
+    return true ;
 }
 
 static void
@@ -845,7 +845,7 @@ directoryTree(int f, int n)
         setHiddenFlag(dnode,n) ;
     
     dirDrawDir(buf,n) ;
-    return meTRUE ;
+    return true ;
 }
 
 #ifdef _ME_FREE_ALL_MEMORY

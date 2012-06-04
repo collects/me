@@ -338,7 +338,7 @@ int
 regSave(meRegNode *rnp, meUByte *fname, int mode)
 {
     meRegNode *rr ;
-    meInt ss=meTRUE, level=0, lineCount, charCount ;
+    meInt ss=true, level=0, lineCount, charCount ;
     meUInt flags ;
 
     if(mode & meREGMODE_FROOT)
@@ -501,7 +501,7 @@ regSave(meRegNode *rnp, meUByte *fname, int mode)
         if(ss <= 0)
             return mlwrite(MWABORT|MWPAUSE,(meUByte *)"[Failed to write registry %s]",fname) ;
     }
-    return meTRUE ;
+    return true ;
 }
 
 /*
@@ -621,7 +621,7 @@ vregFind (meRegNode *sroot, meUByte *fmt)
 /* Note the return value for this is:
  * meABORT - there was a major failure (i.e. couldn't open the file)
  * meFALSE - user quit
- * meTRUE  - succeded
+ * true  - succeded
  * this is used by the exit function which ignore the major failures
  */
 static int
@@ -631,7 +631,7 @@ regTestSave(meRegNode *sroot, int flags)
      * then nothing to do */
     if(!(sroot->mode & meREGMODE_FROOT) || !(sroot->mode & meREGMODE_CHANGE) ||
        (sroot->mode & meREGMODE_DISCARD))
-        return meTRUE ;
+        return true ;
     
     if((flags & 0x01) && !(sroot->mode & meREGMODE_AUTO))
     {
@@ -641,11 +641,11 @@ regTestSave(meRegNode *sroot, int flags)
         meStrcat(prompt,": Save registry") ;
         if((ret = mlyesno(prompt)) == meABORT)
         {
-            ctrlg(meFALSE,1) ;
-            return meFALSE ;
+            ctrlg(false,1) ;
+            return false ;
         }
-        if(ret == meFALSE)
-            return meTRUE ;
+        if(ret == false)
+            return true ;
     }
     return regSave(sroot,NULL,sroot->mode) ;
 }
@@ -664,7 +664,7 @@ regDelete (meRegNode *sroot)
     if (sroot->parent != NULL)
         rnodeUnlink (sroot);
     rnodeDelete(sroot);
-    return meTRUE ;
+    return true ;
 }
 
 /*
@@ -812,7 +812,7 @@ regDecodeMode (int *modep, meUByte *modeStr)
         }
     }
     *modep = mode;
-    return meTRUE;
+    return true;
 }
 
 /*
@@ -844,8 +844,8 @@ readRegistry(int f, int n)
     
     /* Read the file */
     if(regRead(rootbuf, filebuf, mode) == NULL)
-        return meFALSE;
-    return meTRUE;
+        return false;
+    return true;
 }
 
 /*
@@ -949,7 +949,7 @@ markRegistry (int f, int n)
         *ss = '\0' ;
     }
 
-    return meTRUE;
+    return true;
 }
 
 /*
@@ -958,8 +958,8 @@ markRegistry (int f, int n)
  * 
  * Note the return value for this is:
  * meABORT - there was a major failure (i.e. couldn't open the file)
- * meFALSE - user quit
- * meTRUE  - succeded
+ * false - user quit
+ * true  - succeded
  * this is used by the exit function which ignore the major failures
  */
 int
@@ -979,12 +979,12 @@ saveRegistry (int f, int n)
                 return f ;
             rnp = rnp->next ;
         }
-        return meTRUE ;
+        return true ;
     }
     
     /* Get the input from the command line */
     if(meGetString((meUByte *)"Save registry root",0, 0, rootbuf, 128) == meABORT)
-        return meFALSE;
+        return false;
     
     /* Find the root */
     if((rnp = regFind (&root, rootbuf)) == NULL)
@@ -1000,7 +1000,7 @@ saveRegistry (int f, int n)
     
         /* Get the filename */
         if(meGetString((meUByte *)"Registry file",MLFILECASE|MLFILECASE, 0, filebuf, meBUF_SIZE_MAX) <= 0)
-            return meFALSE ;
+            return false ;
         mode |= meREGMODE_FROOT ;
     }
     return regSave(rnp,filebuf,mode) ;
@@ -1016,10 +1016,10 @@ anyChangedRegistry(void)
     while (rnp != NULL)
     {
         if((rnp->mode & (meREGMODE_FROOT|meREGMODE_CHANGE|meREGMODE_DISCARD)) == (meREGMODE_FROOT|meREGMODE_CHANGE))
-            return meTRUE ;
+            return true ;
         rnp = rnp->next ;
     }
-    return meFALSE ;
+    return false ;
 }
 
 /*
@@ -1112,7 +1112,7 @@ setRegistry (int f, int n)
         if(regSet(&root,buf1,buf2) == NULL)
             return mlwrite(MWCLEXEC|MWABORT,(meUByte *)"[Cannot set registry node]");
     }
-    return meTRUE;
+    return true;
 }
 
 /*
@@ -1148,7 +1148,7 @@ findRegistry (int f, int n)
     }
     meStrncpy(resultStr, rnp->name, meBUF_SIZE_MAX-1);
     resultStr[meBUF_SIZE_MAX-1] = '\0';
-    return meTRUE;
+    return true;
 }
 
 /*
@@ -1189,7 +1189,7 @@ listRegistry (int f, int n)
     
     /* Find the buffer and vapour the old one */
     if((wp = meWindowPopup(bn,BFND_CREAT|BFND_CLEAR|WPOP_USESTR,NULL)) == NULL)
-        return meFALSE;
+        return false;
     bp = wp->buffer ;                   /* Point to the buffer */
 
     /* Recurse the children of the node and write to file */
@@ -1272,7 +1272,7 @@ listRegistry (int f, int n)
     meModeClear(bp->mode,MDAUTOSV) ;
     meModeClear(bp->mode,MDUNDO) ;
     resetBufferWindows(bp) ;
-    return meTRUE;
+    return true;
 }
 
 #ifdef _ME_FREE_ALL_MEMORY

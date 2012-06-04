@@ -188,7 +188,7 @@ bufferSetEdit(void)
         if((frameCur->bufferCur->name[0] != '*') &&
            (bufferOutOfDate(frameCur->bufferCur)) &&
            (mlyesno((meUByte *)"File changed on disk, really edit") <= 0))
-            return ctrlg(meTRUE,1) ;
+            return ctrlg(true,1) ;
         meModeSet(frameCur->bufferCur->mode,MDEDIT);
         frameAddModeToWindows(WFMODE) ;
 #if MEOPT_UNDO
@@ -216,7 +216,7 @@ bufferSetEdit(void)
             (meTimerTime[AUTOS_TIMER_ID] > frameCur->bufferCur->autoTime)))
             timerSet(AUTOS_TIMER_ID,frameCur->bufferCur->autoTime,((long)autoTime) * 1000L) ;
     }
-    return meTRUE ;
+    return true ;
 }
 
 void
@@ -393,8 +393,8 @@ lineMakeSpace(int n)
  * hard case, the line has to be reallocated. When the window list is updated,
  * take special care; I screwed it up once. You always update dot in the
  * current window. You update mark, and a dot in another window, if it is
- * greater than the place where you did the insert. Return meTRUE if all is
- * well, and meFALSE on errors.
+ * greater than the place where you did the insert. Return true if all is
+ * well, and false on errors.
  */
 int
 lineInsertChar(int n, int c)
@@ -403,10 +403,10 @@ lineInsertChar(int n, int c)
 
     lineSetChanged(WFMOVEC|WFMAIN);		/* Declare editied buffer */
     if ((cp = lineMakeSpace(n))==NULL)  /* Make space for the characters */
-        return meFALSE ;	        /* Error !!! */
+        return false ;	        /* Error !!! */
     while (n-- > 0)                     /* Copy in the characters */
         *cp++ = c;
-    return meTRUE ;
+    return true ;
 }
 
 /*---	As insrt char, insert string */
@@ -418,22 +418,22 @@ lineInsertString(register int n, register meUByte *cp)
     /* if n == 0 the length if the string is unknown calc the length */
     if((n == 0) &&
        ((n = meStrlen(cp)) == 0))
-        return meTRUE ;
+        return true ;
     
     lineSetChanged(WFMAIN) ;
     
     if ((lp = lineMakeSpace(n))==NULL)	/* Make space for the characters */
-        return meFALSE ;		/* Error !!! */
+        return false ;		/* Error !!! */
     while(n-- > 0)			/* Copy in the characters */
         *lp++ = *cp++;
-    return meTRUE ;
+    return true ;
 }
 
 /*
  * Insert a newline into the buffer at the current location of dot in the
  * current window. The funny ass-backwards way it does things is not a botch;
- * it just makes the last line in the file not a special case. Return meTRUE if
- * everything works out and meFALSE on error (memory allocation failure). The
+ * it just makes the last line in the file not a special case. Return true if
+ * everything works out and false on error (memory allocation failure). The
  * update of dot and mark is a bit easier then in the above case, because the
  * split forces more updating.
  */
@@ -464,7 +464,7 @@ lineInsertNewline(meInt flags)
          * so use the current line for the next line and create a new this line */
         lp2 = lp1 ;
         if ((lp1=meLineMalloc(doto,1)) == NULL) /* New second line      */
-            return meFALSE ;
+            return false ;
         lp1->prev = lp2->prev;
         lp2->prev->next = lp1;
         lp1->next = lp2 ;
@@ -511,7 +511,7 @@ lineInsertNewline(meInt flags)
         register meUByte *cp1, *cp2, *cp3 ;
         
         if ((lp2=meLineMalloc(llen,1)) == NULL) /* New second line      */
-            return meFALSE ;
+            return false ;
         cp2 = cp1 = lp1->text+doto ;                /* Shuffle text around  */
         cp3 = lp2->text ;
         while((*cp3++=*cp2++))
@@ -581,7 +581,7 @@ lineInsertNewline(meInt flags)
     }
     meFrameLoopEnd() ;
     frameCur->bufferCur->lineCount++ ;
-    return meTRUE ;
+    return true ;
 }
 
 #if MEOPT_EXTENDED
@@ -592,7 +592,7 @@ bufferIsTextInsertLegal(meUByte *str)
        (meLineGetFlag(frameCur->windowCur->dotLine) & meLINE_PROTECT) &&
        (meStrchr(str,meCHAR_NL) != NULL))
         return mlwrite(MWABORT,(meUByte *)"[Protected Line!]") ;
-    return meTRUE ;
+    return true ;
 }
 #endif
 
@@ -704,7 +704,7 @@ bufferInsertSpace(int f, int n)	/* insert spaces forward into text */
     register int s ;
     
     if(n <= 0)
-        return meTRUE ;
+        return true ;
     if((s=bufferSetEdit()) <= 0)               /* Check we can change the buffer */
         return s ;
     s = lineInsertChar(n, ' ');
@@ -721,7 +721,7 @@ bufferInsertTab(int f, int n)	/* insert tabs forward into text */
     register int s ;
 
     if(n <= 0)
-        return meTRUE ;
+        return true ;
     if((s=bufferSetEdit()) <= 0)               /* Check we can change the buffer */
         return s ;
     s = lineInsertChar(n, '\t');
@@ -765,7 +765,7 @@ bufferInsertString(int f, int n)
 #if MEOPT_UNDO
     meUndoAddInsChars(count) ;
 #endif
-    return meTRUE ;
+    return true ;
 }
 
 
@@ -781,7 +781,7 @@ bufferInsertNewline(int f, int n)
     register int    s;
     
     if (n <= 0)
-        return meTRUE ;
+        return true ;
     if((s=bufferSetEdit()) <= 0)               /* Check we can change the buffer */
         return s ;
     i = n;                                  /* Insert newlines.     */
@@ -806,7 +806,7 @@ bufferInsertNewline(int f, int n)
  * routine we have to count the number of elements in the list and throw away
  * (ie free) the excess ones.
  *
- * Return meTRUE, except when we cannot malloc enough space for the new klist
+ * Return true, except when we cannot malloc enough space for the new klist
  * element.
  */
 int
@@ -860,7 +860,7 @@ killSave(void)
      * the head of the list.
      */
     if((thiskl = (meKill *) meMalloc(sizeof(meKill))) == NULL)
-        return meFALSE ;
+        return false ;
     thiskl->next = klhead ;
     klhead = thiskl ;
     thiskl->kill = NULL ;
@@ -870,7 +870,7 @@ killSave(void)
     TTsetClipboard() ;
 #endif
 
-    return meTRUE ;
+    return true ;
 }
 
 /* Add a new kill block of size count to the current kill.
@@ -893,8 +893,8 @@ killAddNode(meInt count)
 
 /*
  * This function deletes "n" bytes, starting at dot. It understands how do deal
- * with end of lines, etc. It returns meTRUE if all of the characters were
- * deleted, and meFALSE if they were not (because dot ran into the end of the
+ * with end of lines, etc. It returns true if all of the characters were
+ * deleted, and false if they were not (because dot ran into the end of the
  * buffer. The characters deleted are returned in the string. It is assumed
  * that the kill buffer is not in use.
  * SWP - changed because
@@ -1260,9 +1260,9 @@ mldelete(meInt noChrs, meUByte *kstring)
 
 /*
  * This function deletes "n" bytes, starting at dot. It understands how do deal
- * with end of lines, etc. It returns meTRUE if all of the characters were
- * deleted, and meFALSE if they were not (because dot ran into the end of the
- * buffer. The "kflag" is meTRUE if the text should be put in the kill buffer.
+ * with end of lines, etc. It returns true if all of the characters were
+ * deleted, and false if they were not (because dot ran into the end of the
+ * buffer. The "kflag" is true if the text should be put in the kill buffer.
  */
 /* nn    -  # of chars to delete */
 /* kflag -  put killed text in kill buffer flag */
@@ -1277,7 +1277,7 @@ ldelete(meInt nn, int kflag)
     /* A quick test to make failure handling easier */
     ll = frameCur->windowCur->dotLine ;
     if((ll == frameCur->bufferCur->baseLine) && nn)
-        return meFALSE ;
+        return false ;
     
     /* Must get the # chars we can delete */
     if((len = nn + frameCur->windowCur->dotOffset - meLineGetLength(ll)) > 0)
@@ -1306,7 +1306,7 @@ ldelete(meInt nn, int kflag)
          (frameCur->windowCur->dotOffset || (meLineGetLength(ll) != -len)))))
     {
         mlwrite(MWABORT,(meUByte *)"[Protected Line!]") ;
-        return meFALSE ;
+        return false ;
     }
 #endif
     if(len > 0)
@@ -1318,9 +1318,9 @@ ldelete(meInt nn, int kflag)
          * can't is greater that 1
          */
         if(len > 1)
-            ret = meFALSE ;
+            ret = false ;
         else
-            ret = meTRUE ;
+            ret = true ;
         len = 0 ;
     }
     else if((((long) frameCur->windowCur->dotOffset) - len) > 0xfff0)
@@ -1346,12 +1346,12 @@ ldelete(meInt nn, int kflag)
          */
         nn -= meLineGetLength(ll)+len+1 ;
         mlwrite(MWABORT|MWPAUSE,(meUByte *)"[Line too long!]") ;
-        ret = meFALSE ;
+        ret = false ;
         len = 1 ;
     }        
     else
     {
-        ret = meTRUE ;
+        ret = true ;
         len += meLineGetLength(ll) ;
     }
 #if MEOPT_NARROW
@@ -1382,7 +1382,7 @@ ldelete(meInt nn, int kflag)
         if((lastflag != meCFKILL) && (thisflag != meCFKILL))
             killSave();
         if((kstring = killAddNode(nn)) == NULL)
-            return meFALSE ;
+            return false ;
         thisflag = meCFKILL;
     }
     else
@@ -1403,7 +1403,7 @@ ldelete(meInt nn, int kflag)
 /*
  * yank text back via a klist.
  *
- * Return meTRUE if all goes well, meFALSE if the characters from the kill buffer
+ * Return true if all goes well, false if the characters from the kill buffer
  * cannot be inserted into the text.
  */
 
@@ -1449,10 +1449,10 @@ yank(int f, int n)
     if(n == 0)
     {
         /* place the mark on the current line */
-        windowSetMark(meFALSE, meFALSE);
+        windowSetMark(false, false);
         /* remember that this was a yank command */
         thisflag = meCFYANK ;
-        return meTRUE ;
+        return true ;
     }
     if(n < 0)
     {
@@ -1473,7 +1473,7 @@ yank(int f, int n)
         }
         reyankLastYank = NULL ;
         commandFlag[CK_YANK] = comSelKill ;
-        return meTRUE ;
+        return true ;
     }
         
 #ifdef _CLIPBRD
@@ -1487,7 +1487,7 @@ yank(int f, int n)
         return ret ;
 
     /* place the mark on the current line */
-    windowSetMark(meFALSE, meFALSE);
+    windowSetMark(false, false);
 
     /* for each time.... */
     while(n--)
@@ -1504,9 +1504,9 @@ yank(int f, int n)
     {
         /* remember that this was a yank command */
         thisflag = meCFYANK ;
-        return meTRUE ;
+        return true ;
     }
-    return meFALSE ;
+    return false ;
 }
 
 int
@@ -1548,7 +1548,7 @@ reyank(int f, int n)
     
         if(((reyankLastYank = reyankLastYank->next) == NULL) && (n < 0))
             /* Fail if got to the end and n is -ve */
-            return meFALSE ;
+            return false ;
         
         /* Get the current region */
         if((ret = getregion(&region)) <= 0)
@@ -1562,7 +1562,7 @@ reyank(int f, int n)
     }
     /* Set the mark here so that we can delete the region in the next
      * reyank command. */
-    windowSetMark(meFALSE, meFALSE);
+    windowSetMark(false, false);
 
     /* If we've fallen off the end of the klist and there are no more
      * elements, wrap around to the most recent delete. This makes it
@@ -1581,7 +1581,7 @@ reyank(int f, int n)
     while(n--)
     {
         if((ret = yankfrom(reyankLastYank)) < 0)
-            return meFALSE ;
+            return false ;
         len += ret ;
     }
 #if MEOPT_UNDO
@@ -1591,7 +1591,7 @@ reyank(int f, int n)
     /* Remember that this is a reyank command for next time. */
     thisflag = meCFRYANK;
 
-    return meTRUE ;
+    return true ;
 }
 
 void

@@ -786,7 +786,7 @@ ConsoleDrawString(meUByte *ss, WORD wAttribute, int x, int y, int len)
         if (((cc=*ss++) != pCI->Char.AsciiChar) ||
             (wAttribute != pCI->Attributes))
         {
-            bAny = meTRUE;
+            bAny = true;
             pCI->Char.AsciiChar = cc ;
             pCI->Attributes = wAttribute;
         }
@@ -843,7 +843,7 @@ TTend (void)
 
         /* Show the cursor */
         GetConsoleCursorInfo (hOutput, &CursorInfo);
-        CursorInfo.bVisible = meTRUE;
+        CursorInfo.bVisible = true;
         SetConsoleCursorInfo (hOutput, &CursorInfo);
 #if MEOPT_EXTENDED
         if((alarmState & meALARM_PIPED) == 0)
@@ -860,7 +860,7 @@ TTend (void)
         }
         SetConsoleTitle(chConsoleTitle);
     }
-    return meTRUE ;
+    return true ;
 }
 
 /* Get a console message and format as a standard windows message */
@@ -944,7 +944,7 @@ meGetConsoleMessage(MSG *msg, int mode)
                 ttmodif |= ME_CONTROL;
             if(kr->dwControlKeyState & ENHANCED_KEY)
                 msg->lParam |= 0x01000000 ;
-            return meTRUE ;
+            return true ;
         }
     }
     else if (ir.EventType == MOUSE_EVENT)
@@ -1025,7 +1025,7 @@ meGetConsoleMessage(MSG *msg, int mode)
             /* Set up mouse position */
             msg->lParam = ((mr->dwMousePosition.Y) << 16) | mr->dwMousePosition.X;
 
-            return meTRUE ;
+            return true ;
         }
     }
     else if (ir.EventType == WINDOW_BUFFER_SIZE_EVENT)
@@ -1517,8 +1517,8 @@ WinLoadFont(int font)
             ttlogfont.lfWeight = FW_EXTRALIGHT ;
         else
             ttlogfont.lfWeight = FW_NORMAL ;
-        ttlogfont.lfItalic    = (font & meFONT_ITALIC)    ? meTRUE : meFALSE;
-        ttlogfont.lfUnderline = (font & meFONT_UNDERLINE) ? meTRUE : meFALSE;
+        ttlogfont.lfItalic    = (font & meFONT_ITALIC)    ? true : meFALSE;
+        ttlogfont.lfUnderline = (font & meFONT_UNDERLINE) ? true : meFALSE;
 
         /* Create the font - use the existing font if it exists */
         if ((eCellMetrics.fontdef[font] = CreateFontIndirect (&ttlogfont)) == NULL)
@@ -1828,17 +1828,17 @@ WinQuitExit (HWND hwndDlg,     /* window handle of dialog box     */
     switch (message)
     {
     case WM_INITDIALOG:  /* message: initialize dialog box  */
-        return meTRUE;
+        return true;
 
     case WM_COMMAND:     /* message: received a command */
         /* User pressed "Cancel" button--stop print job. */
         if ((LOWORD (wParam)) == IDOK)
-            EndDialog (hwndDlg, meTRUE);
+            EndDialog (hwndDlg, true);
         else if ((LOWORD (wParam)) == IDCANCEL)
             EndDialog (hwndDlg, meFALSE);
         else
             return meFALSE;
-        return meTRUE;
+        return true;
     default:
         return meFALSE;     /* didn't process a message   */
 
@@ -2113,12 +2113,12 @@ childActiveThread(LPVOID lpParam)
  * WinLaunchProgram
  * Launches an external program using the DOS shell.
  *
- * Returns meTRUE if all went well, meFALSE if wait cancelled and FAILED if
+ * Returns true if all went well, meFALSE if wait cancelled and FAILED if
  * failed to launch.
  *
  * Cmd is the command string to launch.
  *
- * DOSApp is meTRUE if the external program is a DOS program to be run
+ * DOSApp is true if the external program is a DOS program to be run
  * under a DOS shell. If DOSApp is meFALSE, the program is launched
  * directly as a Windows application. In that case, the InFile parameter
  * is ignored, and the value of the OutFile parameter is used only to
@@ -2290,7 +2290,7 @@ WinLaunchProgram (meUByte *cmd, int flags, meUByte *inFile, meUByte *outFile,
 
             sbuts.nLength = sizeof(SECURITY_ATTRIBUTES) ;
             sbuts.lpSecurityDescriptor = NULL ;
-            sbuts.bInheritHandle = meTRUE ;
+            sbuts.bInheritHandle = true ;
 
             if(flags & LAUNCH_FILTER)
             {
@@ -2367,7 +2367,7 @@ WinLaunchProgram (meUByte *cmd, int flags, meUByte *inFile, meUByte *outFile,
                 /* Duplicate stdout => stderr, don't really care if this fails */
                 DuplicateHandle(GetCurrentProcess(),meSuInfo.hStdOutput,
                                 GetCurrentProcess(),&meSuInfo.hStdError,
-                                0,meTRUE,DUPLICATE_SAME_ACCESS) ;
+                                0,true,DUPLICATE_SAME_ACCESS) ;
                 
             }
 #endif
@@ -2429,7 +2429,7 @@ WinLaunchProgram (meUByte *cmd, int flags, meUByte *inFile, meUByte *outFile,
                 meSuInfo.hStdInput = dumHdl;
                 /* Duplicate stdout => stderr, don't really care if this fails */
                 DuplicateHandle (GetCurrentProcess (), meSuInfo.hStdOutput,
-                                 GetCurrentProcess (), &meSuInfo.hStdError,0,meTRUE,
+                                 GetCurrentProcess (), &meSuInfo.hStdError,0,true,
                                  DUPLICATE_SAME_ACCESS) ;
 #endif
             }
@@ -2505,14 +2505,14 @@ WinLaunchProgram (meUByte *cmd, int flags, meUByte *inFile, meUByte *outFile,
                       cp,
                       NULL,
                       NULL,
-                      ((flags & (LAUNCH_SHELL|LAUNCH_NOWAIT)) ? meFALSE:meTRUE),
+                      ((flags & (LAUNCH_SHELL|LAUNCH_NOWAIT)) ? meFALSE:true),
                       ((flags & LAUNCH_DETACHED) ? DETACHED_PROCESS : CREATE_NEW_CONSOLE),
                       NULL,
                       NULL,
                       &meSuInfo,
                       &mePInfo))
     {
-        status = meTRUE ;
+        status = true ;
         CloseHandle(mePInfo.hThread);
         /* Ipipes need the process handle and we dont wait for it */
         if((flags & LAUNCH_IPIPE) == 0)
@@ -2529,14 +2529,14 @@ WinLaunchProgram (meUByte *cmd, int flags, meUByte *inFile, meUByte *outFile,
                     if (procStatus == WAIT_TIMEOUT)
                     {
                         if (TTahead() && (TTbreakFlag != 0))
-                            status = meTRUE;
+                            status = true;
                         else
                             continue;
                     }
                     else if (procStatus == WAIT_FAILED)
                         status = meFALSE;
                     else
-                        status = meTRUE;
+                        status = true;
                     /* If we're interested in the result, get it */
                     if(sysRet != NULL)
                         GetExitCodeProcess(mePInfo.hProcess, (LPDWORD) sysRet) ;
@@ -2592,7 +2592,7 @@ WinLaunchProgram (meUByte *cmd, int flags, meUByte *inFile, meUByte *outFile,
 #ifdef USE_BEGINTHREAD
             {
                 unsigned long thread ;
-                if(((ipipe->childActive=CreateEvent(NULL, meTRUE, meFALSE, NULL)) != 0) &&
+                if(((ipipe->childActive=CreateEvent(NULL, true, meFALSE, NULL)) != 0) &&
                    ((ipipe->threadContinue=CreateEvent(NULL, meFALSE, meFALSE, NULL)) != 0) &&
                    ((thread=_beginthread(childActiveThread,0,ipipe)) != -1))
                     ipipe->thread = (HANDLE) thread ;
@@ -2600,7 +2600,7 @@ WinLaunchProgram (meUByte *cmd, int flags, meUByte *inFile, meUByte *outFile,
                     ipipe->thread = NULL ;
             }
 #else
-            if(((ipipe->childActive=CreateEvent(NULL, meTRUE, meFALSE, NULL)) != 0) &&
+            if(((ipipe->childActive=CreateEvent(NULL, true, meFALSE, NULL)) != 0) &&
                ((ipipe->threadContinue=CreateEvent(NULL, meFALSE, meFALSE, NULL)) != 0))
                ipipe->thread = CreateThread(NULL,0,childActiveThread,ipipe,0,&(ipipe->threadId)) ;
             else
@@ -2753,7 +2753,7 @@ WinShutdown (void)
                 autowriteout(bp) ;
             bp = bp->next;            /* on to the next buffer */
         }
-        saveHistory(meTRUE,0) ;
+        saveHistory(true,0) ;
     }
 #endif
 }
@@ -2809,7 +2809,7 @@ TTinitMouse(void)
 /*
  * WinMouse
  * Handle mouse events from the message queues.
- * Returning meTRUE if the event is handled; otherwise meFALSE.
+ * Returning true if the event is handled; otherwise meFALSE.
  */
 int
 WinMouse(HWND hwnd, UINT message, UINT wParam, LONG lParam)
@@ -2830,7 +2830,7 @@ WinMouse(HWND hwnd, UINT message, UINT wParam, LONG lParam)
         case WM_LBUTTONUP:
         case WM_MBUTTONUP:
         case WM_RBUTTONUP:
-            return meTRUE ;
+            return true ;
         }
         return meFALSE ;
     }
@@ -2998,14 +2998,14 @@ WinMouse(HWND hwnd, UINT message, UINT wParam, LONG lParam)
         return meFALSE ;
     }
 
-    return meTRUE ;
+    return true ;
 }
 #endif
 
 /*
  * WinKeyboard
  * Handle keyboard message types.
- * Returning meTRUE if the event is handled; otherwise meFALSE.
+ * Returning true if the event is handled; otherwise meFALSE.
  */
 int
 WinKeyboard (HWND hwnd, UINT message, UINT wParam, LONG lParam)
@@ -3451,7 +3451,7 @@ do_keydown:
             mouseHide() ;
 
 #else  /* DISABLE_ALT_C_KEY_DETECTION */
-            return (meTRUE);
+            return (true);
 #endif /* DISABLE_ALT_C_KEY_DETECTION */
         }
         break;
@@ -3605,7 +3605,7 @@ return_spec:
     default:
         return (meFALSE);
     }
-    return (meTRUE);
+    return (true);
 }
 
 /****************************************************************************
@@ -3827,7 +3827,7 @@ TTaddColor(meColor index, meUByte r, meUByte g, meUByte b)
         eCellMetrics.pInfo.cPal [index].rgb = cReq;
     }
 #endif /* _ME_WINDOW */
-    return meTRUE ;
+    return true ;
 }
 
 #ifdef _ME_WINDOW
@@ -3847,7 +3847,7 @@ TTchangeFont (meUByte *fontName, int fontType, int fontWeight,
     RECT  rect;                         /* Area of the client window */
     TEXTMETRIC textmetric;              /* Text metrics */
     LOGFONT logfont;                    /* Logical font */
-    int   status = meTRUE;                /* Status of the invocation */
+    int   status = true;                /* Status of the invocation */
 
     hDC = GetDC(baseHwnd);
     SetMapMode (hDC, MM_TEXT);
@@ -3882,7 +3882,7 @@ TTchangeFont (meUByte *fontName, int fontType, int fontWeight,
                     (int) logfont.lfHeight,logfont.lfCharSet,logfont.lfFaceName) ;
             if (fontType < -2)
                 /* if a -ve argument was past to changeFont then don't set the font */
-                return meTRUE ;
+                return true ;
 
             /* SWP - we dont want italic as the main font */
             logfont.lfItalic = 0;
@@ -4436,10 +4436,10 @@ meGetMessage(MSG *msg, int mode)
 #endif /* _ME_WINDOW */
             {
                 if(PeekMessage(msg, meHWndNull, WM_TIMER, WM_TIMER, PM_REMOVE) != meFALSE)
-                    return meTRUE ;
+                    return true ;
                 if(((jj < 0) || (jj >= ii) || ((jj == 0) && (hInput != INVALID_HANDLE_VALUE))) &&
                    meGetConsoleMessage(msg,mode))
-                    return meTRUE ;
+                    return true ;
             }
 #ifdef _ME_WINDOW
             else
@@ -4459,7 +4459,7 @@ meGetMessage(MSG *msg, int mode)
                   0,                /* first message */
                   0) <= 0)          /* last message */
         meDie() ;
-    return meTRUE ;
+    return true ;
 }
 
 /*
@@ -4524,7 +4524,7 @@ TTwaitForChar(void)
         }
 #endif
 
-        if (sgarbf == meTRUE)
+        if (sgarbf == true)
         {
             update(meFALSE) ;
             mlerase(MWCLEXEC) ;
@@ -4749,7 +4749,7 @@ meFrameTermInit(meFrame *frame, meFrame *sibling)
         /* internal frame, just copy the window handler */
         frame->termData = sibling->termData ;
 #endif /* _ME_WINDOW */
-    return meTRUE ;
+    return true ;
 }
 
 /*
@@ -4846,7 +4846,7 @@ TTstart (void)
         SetConsoleMode(hInput, ConsoleMode);
 
         /* Set emergency quit handler routine */
-        SetConsoleCtrlHandler (ConsoleHandlerRoutine, meTRUE);
+        SetConsoleCtrlHandler (ConsoleHandlerRoutine, true);
 
         /* Hide the cursor - this does not seem to work on win98!! */
         GetConsoleCursorInfo (hOutput, &CursorInfo);
@@ -4897,7 +4897,7 @@ TTstart (void)
 
     /* To be continued in meFrameTermInit after the display memory
      * has been initialised */
-    return meTRUE ;
+    return true ;
 }
 
 /*
@@ -5188,7 +5188,7 @@ TTsleep (int msec, int intable, meVarList *waitVarList)
 {
     meUByte *ss ;
 
-    if (intable && ((kbdmode == mePLAY) || (clexec == meTRUE)))
+    if (intable && ((kbdmode == mePLAY) || (clexec == true)))
         return;
 
     /* Do not actually need the absolute time as this will
@@ -5308,7 +5308,7 @@ meFrameSetWindowSizeInternal(meFrame *frame)
         meFrameGetWinPaintDepth(frame)    = depth ;
     }
     if(!screenUpdateDisabledCount)
-        screenUpdate(meTRUE,2-sgarbf) ;
+        screenUpdate(true,2-sgarbf) ;
 }
 #endif /* _ME_WINDOW */
 
@@ -5525,7 +5525,7 @@ meSetupUserName(void)
     if(((nn = meGetenv ("MENAME")) == NULL) || (nn[0] == '\0'))
     {
         ii = 128 ;
-        if((GetUserName(buff,&ii) == meTRUE) && (buff[0] != '\0'))
+        if((GetUserName(buff,&ii) == true) && (buff[0] != '\0'))
             nn = buff ;
         else if(((nn = meGetenv("LOGNAME")) != NULL) && (nn[0] == '\0'))
             nn = NULL ;
@@ -6252,7 +6252,7 @@ MainWndProc (HWND hWnd, UINT message, UINT wParam, LONG lParam)
         {
             /* we have a palette simply return TRUE as the WM_PALETTECHANGED
              * message will handle the actual ins and outs of palette swapping */
-            return meTRUE;
+            return true;
         }
         break;
 
@@ -6264,7 +6264,7 @@ MainWndProc (HWND hWnd, UINT message, UINT wParam, LONG lParam)
         {
             HDC hDC = GetDC(baseHwnd);
 
-            SelectPalette (hDC, eCellMetrics.pInfo.hPal, meTRUE);
+            SelectPalette (hDC, eCellMetrics.pInfo.hPal, true);
             if (RealizePalette(hDC) != GDI_ERROR)
             {
                 UpdateColors(hDC);
@@ -6294,7 +6294,7 @@ MainWndProc (HWND hWnd, UINT message, UINT wParam, LONG lParam)
         mouseShow() ;
 #ifdef _DRAGNDROP
         /* Enable drag and drop handling */
-        DragAcceptFiles (hWnd, meTRUE);
+        DragAcceptFiles (hWnd, true);
 #endif
         break;
 
@@ -6389,7 +6389,7 @@ MainWndProc (HWND hWnd, UINT message, UINT wParam, LONG lParam)
     case WM_TIMER:
         if(wParam >= NUM_TIMERS)
             /* unhandled timer */
-            return meTRUE;
+            return true;
         meTimerState[wParam] = (meTimerState[wParam] & ~TIMER_SET) | TIMER_EXPIRED;
         break;
 

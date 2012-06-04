@@ -237,7 +237,7 @@ showCursor(int f, int n)
     }
     else if((cursorState < 0) && (ii >= 0))
         TThideCur() ;
-    return meTRUE ;
+    return true ;
 }
 
 int
@@ -264,13 +264,13 @@ showRegion(int f, int n)
 
     case -2:
         frameCur->windowCur->updateFlags |= WFMOVEL ;
-        if((windowGotoLine(meTRUE,selhilight.markLineNo+1) > 0) &&
+        if((windowGotoLine(true,selhilight.markLineNo+1) > 0) &&
            (selhilight.markOffset <= meLineGetLength(frameCur->windowCur->dotLine)))
         {
             frameCur->windowCur->dotOffset = (meUShort) selhilight.markOffset ;
-            return meTRUE ;
+            return true ;
         }
-        return meFALSE ;
+        return false ;
 
     case -1:
         selhilight.flags &= ~SELHIL_ACTIVE ;
@@ -298,7 +298,7 @@ showRegion(int f, int n)
                 n |= 8 ;
         }
         sprintf((char *)resultStr,"%d",n) ;
-        return meTRUE ;
+        return true ;
 
     case 1:
         selhilight.flags |= SELHIL_ACTIVE;
@@ -308,13 +308,13 @@ showRegion(int f, int n)
 
     case 2:
         frameCur->windowCur->updateFlags |= WFMOVEL ;
-        if((windowGotoLine(meTRUE,selhilight.dotLineNo+1) > 0) &&
+        if((windowGotoLine(true,selhilight.dotLineNo+1) > 0) &&
            (selhilight.dotOffset <= meLineGetLength(frameCur->windowCur->dotLine)))
         {
             frameCur->windowCur->dotOffset = (meUShort) selhilight.dotOffset ;
-            return meTRUE ;
+            return true ;
         }
-        return meFALSE ;
+        return false ;
 
     case 3:
         if(((selhilight.flags & (SELHIL_FIXED|SELHIL_ACTIVE)) == 0) ||
@@ -341,7 +341,7 @@ showRegion(int f, int n)
         return meABORT ;
     }
     meBufferAddModeToWindows(selhilight.bp, WFSELHIL);
-    return meTRUE ;
+    return true ;
 }
 #endif
 
@@ -1191,7 +1191,7 @@ hideLineJump:
 #endif /* _ME_WINDOW */
 #endif /* _WIN32 */
 
-    return meTRUE ;
+    return true ;
 }
 
 /*
@@ -2028,7 +2028,7 @@ screenUpdate(int f, int n)
     if(n <= 0)
     {
         screenUpdateDisabledCount = n ;
-        return meTRUE ;
+        return true ;
     }
     if(n == 3)
     {
@@ -2052,7 +2052,7 @@ screenUpdate(int f, int n)
 
         /* check the horizontal scroll and cursor position */
         updCursor(frameCur->windowCur) ;
-        return meTRUE ;
+        return true ;
     }
 
     force = (n == 1) ;
@@ -2232,11 +2232,11 @@ screenUpdate(int f, int n)
     /* else required to keep the auto-indent right */
 #endif
 
-    return(meTRUE);
+    return(true);
 }
 
 int
-update(int flag)    /* force=meTRUE update past type ahead? */
+update(int flag)    /* force=true update past type ahead? */
 {
 #if MEOPT_CALLBACK
     register int index;
@@ -2245,12 +2245,12 @@ update(int flag)    /* force=meTRUE update past type ahead? */
 
     if((alarmState & meALARM_PIPED) ||
        (!(flag & 0x01) && ((kbdmode == mePLAY) || clexec || TTahead())))
-        return meTRUE ;
+        return true ;
 
     if(screenUpdateDisabledCount)
     {
         screenUpdateDisabledCount++ ;
-        return meTRUE ;
+        return true ;
     }
 
 #if MEOPT_CALLBACK
@@ -2260,9 +2260,9 @@ update(int flag)    /* force=meTRUE update past type ahead? */
 #endif
         screenUpdate(1,2-sgarbf) ;
     /* reset garbled status */
-    sgarbf = meFALSE ;
+    sgarbf = false ;
 
-    return meTRUE ;
+    return true ;
 }
 
 /*
@@ -2686,11 +2686,11 @@ screenPoke(int f, int n)
        ((row = meAtoi(fbuf)),(meGetString((meUByte *)"col",0,0,fbuf,meBUF_SIZE_MAX) <= 0)) ||
        ((col = meAtoi(fbuf)),(meGetString((meUByte *)"scheme",0,0,fbuf,meBUF_SIZE_MAX) <= 0)) ||
        (meGetString((meUByte *)"string",0,0,sbuf,meBUF_SIZE_MAX) <= 0))
-        return meFALSE ;
+        return false ;
     if((n & POKE_COLORS) == 0)
         fbuf[0] = (meUByte) meAtoi(fbuf) ;
     pokeScreen(n,row,col,fbuf,sbuf) ;
-    return meTRUE ;
+    return true ;
 }
 #endif
 
@@ -2737,7 +2737,7 @@ mlputi(long i, int r, meUByte *buf)
  * Write a message into the message line. Keep track of the physical cursor
  * position. A small class of printf like format items is handled. Assumes the
  * stack grows down; this assumption is made by the "++" in the argument scan
- * loop. Set the "message line" flag meTRUE.
+ * loop. Set the "message line" flag true.
  */
 #ifdef _STDARG
 int
@@ -2986,7 +2986,7 @@ mlwrite(int flags, meUByte *fmt, int arg)
 
 mlwrite_exit:
     if(!(flags & MWABORT))
-        return meTRUE ;
+        return true ;
 
     return meABORT ;
 }
@@ -3045,7 +3045,7 @@ addColor(int f, int n)
         (meGetString((meUByte *)"Green",0,0,buff,meBUF_SIZE_MAX) == meABORT)) ||
        ((g = (meUByte) meAtoi(buff)),
         (meGetString((meUByte *)"Blue",0,0,buff,meBUF_SIZE_MAX) == meABORT)))
-        return meFALSE ;
+        return false ;
     b = (meUByte) meAtoi(buff) ;
 
     n = TTaddColor(index,r,g,b) ;
@@ -3098,7 +3098,7 @@ addColorScheme(int f, int n)
     if (f)
     {
         memcpy(hcolors,dcolors,meSCHEME_STYLES*sizeof(meStyle));
-        return meTRUE ;
+        return true ;
     }
 
     /* Get the parameters from the user. */
@@ -3158,7 +3158,7 @@ addColorScheme(int f, int n)
     }
     if(index == globScheme)
         TTsetBgcol() ;
-    return meTRUE;
+    return true;
 }
 #endif
 
@@ -3239,7 +3239,7 @@ meVideoAttach (meVideo *vvptr, meWindow *wp)
             ((vs = (meVideoLine *) meMalloc(frameCur->depthMax*sizeof(meVideoLine))) == NULL))
         {
             meNullFree (vvptr);
-            return (meFALSE);
+            return (false);
         }
 
         /* Reset the strucure and chain to the existing frameCur->video list */
@@ -3257,5 +3257,5 @@ meVideoAttach (meVideo *vvptr, meWindow *wp)
     wp->video = vvptr;
     wp->videoNext = vvptr->window;
     vvptr->window = wp;
-    return (meTRUE);
+    return (true);
 }

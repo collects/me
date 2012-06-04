@@ -228,7 +228,7 @@ meDictionaryAddWord(meDictionary *dict, meDictWord *wrd)
     if((ent = meDictionaryLookupWord(dict,word,wlen)) != NULL)
     {
         if(flen == 0)
-            return meTRUE ;
+            return true ;
         /* see if the word list already exists in the rule list */
         if(!meWordGetErrorFlag(ent) &&
            !meWordGetErrorFlag(wrd) &&
@@ -239,7 +239,7 @@ meDictionaryAddWord(meDictionary *dict, meDictWord *wrd)
             ff = meWordGetFlag(wrd) ;
             ff[flen] = '\0' ;
             if(meStrstr(ef,ff) != NULL)
-                return meTRUE ;
+                return true ;
             ff[flen++] = '_' ;
             memcpy(ff+flen,ef,olen) ;
             flen += olen ;
@@ -255,7 +255,7 @@ meDictionaryAddWord(meDictionary *dict, meDictWord *wrd)
     {
         dict->dSize = dict->dUsed+len+TBLINCSIZE ;
         if((dict->table = (meDictAddr *) meRealloc(dict->table,dict->dSize)) == NULL)
-            return meFALSE ;
+            return false ;
     }
     nent = (meDictWord *) mePtrOffset(dict->table,dict->dUsed) ;
     nent->wordLen = wrd->wordLen ;
@@ -286,7 +286,7 @@ meDictionaryAddWord(meDictionary *dict, meDictWord *wrd)
     meWordSetAddr(nent,off) ;
     dict->dUsed += len ;
     (dict->noWords)++ ;
-    return meTRUE ;
+    return true ;
 }
 
 
@@ -355,7 +355,7 @@ meDictionaryLoad(meDictionary *dict)
     table = (meDictAddr *) meMalloc(10) ;
 #endif
     if ((table = (meDictAddr *) meMalloc(dSize)) == NULL)
-        return meFALSE ;
+        return false ;
     dict->table = table ;
     dict->dUsed = dUsed ;
     dict->dSize = dSize ;
@@ -371,7 +371,7 @@ meDictionaryLoad(meDictionary *dict)
     dict->flags |= DTACTIVE ;
     meDictionaryRehash(dict) ;
     
-    return meTRUE ;
+    return true ;
 }
 
 
@@ -395,7 +395,7 @@ meSpellInitDictionaries(void)
                 ldict->next = dict->next ;
             meFree(dict->fname) ;
             meFree(dict) ;
-            return meFALSE ;
+            return false ;
         }
         ldict = dict ;
         dict = ldict->next ;
@@ -409,7 +409,7 @@ meSpellInitDictionaries(void)
         dSize = dUsed + TBLINCSIZE ;
         if(((dictIgnr = (meDictionary *) meMalloc(sizeof(meDictionary))) == NULL) ||
            ((table = (meDictAddr *) meMalloc(dSize)) == NULL))
-            return meFALSE ;
+            return false ;
         memset(table,0,dUsed) ;
         dictIgnr->dSize = dSize ;
         dictIgnr->dUsed = dUsed ;
@@ -420,7 +420,7 @@ meSpellInitDictionaries(void)
         dictIgnr->fname = NULL ;
         dictIgnr->next = NULL ;
     }
-    return meTRUE ;
+    return true ;
 }
 
 static meDictionary *
@@ -431,7 +431,7 @@ meDictionaryFind(int flag)
     int found ;
     
     if(meGetString((meUByte *)"Dictionary name",MLFILECASE,0,tmp,meBUF_SIZE_MAX) <= 0)
-        return meFALSE ;
+        return false ;
     
     if(!fileLookup(tmp,(meUByte *)".edf",meFL_CHECKDOT|meFL_USESRCHPATH,fname))
     {
@@ -516,7 +516,7 @@ dictionaryAdd(int f, int n)
     else if(n >  0) f = 3 ;
     else            f = 1 ;
     if((dict = meDictionaryFind(f)) == NULL)
-        return meFALSE ;
+        return false ;
     if(n < 0)
     {
         meDictAddr    *tbl ;
@@ -555,7 +555,7 @@ dictionaryAdd(int f, int n)
             }
         }
     }
-    return meTRUE ;
+    return true ;
 }
 
 
@@ -601,19 +601,19 @@ spellRuleAdd(int f, int n)
         
         if((rule = mlCharReply((meUByte *)"Rule flag: ",0,NULL,NULL)) < 0)
             return meABORT ;
-        if((f == meFALSE) && (rule == '-'))
+        if((f == false) && (rule == '-'))
         {
             if((rule = mlyesno((meUByte *)"Enable hyphen")) == meABORT)
                 return meABORT ;
             hyphenCheck = rule ;
-            return meTRUE ;
+            return true ;
         }
-        else if((f == meFALSE) && (rule == '#'))
+        else if((f == false) && (rule == '#'))
         {
             if(meGetString((meUByte *)"Guess score",MLNOSPACE,0,buff,meBUF_SIZE_MAX) <= 0)
                 return meABORT ;
             maxScore = meAtoi(buff) ;
-            return meTRUE ;
+            return true ;
         }
         if(rule == '*')
         {
@@ -695,13 +695,13 @@ spellRuleAdd(int f, int n)
             pr->next = rr ;
         }
     }
-    return meTRUE ;
+    return true ;
 }
 
 /* Note the return value for this is:
  * meABORT - there was a major failure (i.e. couldn't open the file)
- * meFALSE - user quit
- * meTRUE  - succeded
+ * false - user quit
+ * true  - succeded
  * this is used by the exit function which ignore the major failures
  */
 static int
@@ -711,7 +711,7 @@ meDictionarySave(meDictionary *dict, int n)
     int ii ;
     
     if(!(dict->flags & DTCHNGD))
-        return meTRUE ;
+        return true ;
     
     /* Never auto-save created dictionaries */
     if((dict->flags & DTCREATE) ||
@@ -724,11 +724,11 @@ meDictionarySave(meDictionary *dict, int n)
         meStrcat(prompt,": Save dictionary") ;
         if((ret = mlyesno(prompt)) < 0)
         {
-            ctrlg(meFALSE,1) ;
-            return meFALSE ;
+            ctrlg(false,1) ;
+            return false ;
         }
-        if(ret == meFALSE)
-            return meTRUE ;
+        if(ret == false)
+            return true ;
         if(dict->flags & DTCREATE)
         {
             meUByte fname[meBUF_SIZE_MAX], *pp, *ss ;
@@ -745,7 +745,7 @@ meDictionarySave(meDictionary *dict, int n)
             {
                 ss = dict->fname ;
                 if(inputFileName((meUByte *)"Save to directory",fname,1) <= 0)
-                    return meFALSE ;
+                    return false ;
                 pp = fname + meStrlen(fname) ;
                 if(pp[-1] != DIR_CHAR)
                     *pp++ = DIR_CHAR ;
@@ -778,7 +778,7 @@ meDictionarySave(meDictionary *dict, int n)
         if(ffWriteFileClose(dict->fname,meRWFLAG_WRITE,NULL) > 0)
         {
             dict->flags &= ~DTCHNGD ;
-            return meTRUE ;
+            return true ;
         }
     }
     return mlwrite(MWABORT|MWPAUSE,(meUByte *)"[Failed to write dictionary %s]",dict->fname) ;
@@ -786,8 +786,8 @@ meDictionarySave(meDictionary *dict, int n)
 
 /* Note the return value for this is:
  * meABORT - there was a major failure (i.e. couldn't open the file)
- * meFALSE - user quit
- * meTRUE  - succeded
+ * false - user quit
+ * true  - succeded
  * this is used by the exit function which ignore the major failures
  */
 int
@@ -813,7 +813,7 @@ dictionarySave(int f, int n)
             return f ;
     }
 
-    return meTRUE ;
+    return true ;
 }
 
 /* returns true if any dictionary needs saving */
@@ -826,10 +826,10 @@ anyChangedDictionary(void)
     while(dict != NULL)
     {
         if(dict->flags & DTCHNGD)
-            return meTRUE ;
+            return true ;
         dict = dict->next ;
     }
-    return meFALSE ;
+    return false ;
 }
 
 static void
@@ -866,7 +866,7 @@ dictionaryDelete(int f, int n)
         }
         if(!(n & 0x02))
             /* just remove the ignore */
-            return meTRUE ;
+            return true ;
     }
     
     if(n & 0x02)
@@ -876,7 +876,7 @@ dictionaryDelete(int f, int n)
         while((dd=dictHead) != NULL)
         {
             if((n & 0x01) && (meDictionarySave(dd,0x01) <= 0))
-                return meFALSE ;
+                return false ;
             dictHead = dd->next ;
             meDictionaryFree(dd) ;
         }
@@ -886,10 +886,10 @@ dictionaryDelete(int f, int n)
         meDictionary *dict, *dd ;
     
         if((dict = meDictionaryFind(0)) == NULL)
-            return meFALSE ;
+            return false ;
         
         if((n & 0x01) && (meDictionarySave(dict,0x01) <= 0))
-            return meFALSE ;
+            return false ;
         if(dict == dictHead)
             dictHead = dict->next ;
         else
@@ -901,7 +901,7 @@ dictionaryDelete(int f, int n)
         }
         meDictionaryFree(dict) ;
     }
-    return meTRUE ;
+    return true ;
 }
 
 
@@ -1120,21 +1120,21 @@ wordTrySpecialRules(meUByte *word, int wlen)
             if(regexStrCmp(word,rr->ending,meRSTRCMP_WHOLE) > 0)
             {
                 word[wlen] = cc ;
-                return meTRUE ;
+                return true ;
             }
             rr = rr->next ;
         }
         word[wlen] = cc ;
     }
-    return meFALSE ;
+    return false ;
 }
 
 /* wordCheckSearch
  * 
  * Looks in all dictionaries for the given word, then tries all
  * the rules. Returns:
- *   meFALSE  Word not found
- *   meTRUE   found and word is good
+ *   false  Word not found
+ *   true   found and word is good
  *   meABORT  found and word is erroneous
  */
 static int
@@ -1169,7 +1169,7 @@ wordCheckSearch(meUByte *word, int wlen)
     wordCurr = wd ;
     if(meWordGetErrorFlag(wd))
         return meABORT ;
-    return meTRUE ;
+    return true ;
 }
 
 /* wordCheckBase
@@ -1181,8 +1181,8 @@ wordCheckSearch(meUByte *word, int wlen)
  * 4) If capitalised the makes lower case and tries wordCheckSearch
  * 
  * If all the above fail then it fails. Returns:
- *   meFALSE  Word is okay
- *   meTRUE   found and word is good
+ *   false  Word is okay
+ *   true   found and word is good
  *   meABORT  found and word is erroneous
  */
 static int
@@ -1193,9 +1193,9 @@ wordCheckBase(meUByte *word, int wlen)
     
     if(caseFlags == 0)
         /* No letters in the word -> not a word -> word okay */
-        return meTRUE ;
+        return true ;
     
-    if((ii=wordCheckSearch(word,wlen)) != meFALSE)
+    if((ii=wordCheckSearch(word,wlen)) != false)
         return ii ;
     
     /* If all upper then capitalise */
@@ -1209,14 +1209,14 @@ wordCheckBase(meUByte *word, int wlen)
             *ss++ = toggleLatinCase(cc) ;
         }
         if(wordCheckSearch(word,wlen) > 0)
-            return meTRUE ;
+            return true ;
     }
     if(caseFlags & SPELL_CASE_FUPPER)
     {
         cc = *word ;
         *word = toggleLatinCase(cc) ;
         if(wordCheckSearch(word,wlen) > 0)
-            return meTRUE ;
+            return true ;
         *word = cc ;
     }
     /* We failed to find it, restore the case if we changed it */
@@ -1230,14 +1230,14 @@ wordCheckBase(meUByte *word, int wlen)
             *ss++ = toggleLatinCase(cc) ;
         }
     }
-    return meFALSE ;
+    return false ;
 }
 
 /* wordCheck
  * 
  * Check for the given word in all dictionaries, returns:
- *   meFALSE  Word not found
- *   meTRUE   found and word is good
+ *   false  Word not found
+ *   true   found and word is good
  *   meABORT  found and word is erroneous
  */
 static int
@@ -1248,13 +1248,13 @@ wordCheck(meUByte *word)
     
     len = meStrlen(word) ;
     
-    if((ii=wordCheckBase(word,len)) != meFALSE)
+    if((ii=wordCheckBase(word,len)) != false)
         return ii ;
     if(isSpllExt(word[len-1]))
     {
         len-- ;
         if(wordCheckBase(word,len) > 0)
-            return meTRUE ;
+            return true ;
     }
     if(hyphenCheck)
     {
@@ -1265,7 +1265,7 @@ wordCheck(meUByte *word)
             {
                 if((ss != word) &&
                    (wordCheckBase(word,(meUByte)(ss-word)) <= 0))
-                    return meFALSE ;
+                    return false ;
                 word = ss+1 ;
                 hyphen = 1 ;
             }
@@ -1274,10 +1274,10 @@ wordCheck(meUByte *word)
            (((len=ss-word) == 0) || (wordCheckBase(word,(meUByte)len) > 0)))
         {
             wordCurr = NULL ;
-            return meTRUE ;
+            return true ;
         }
     }
-    return meFALSE ;
+    return false ;
 }    
 
 static meUByte *
@@ -1868,11 +1868,11 @@ spellWord(int f, int n)
             {
                 if(!isSpace(cc))
                     curDbl = 0 ;
-                if(meWindowForwardChar(frameCur->windowCur, 1) == meFALSE)
+                if(meWindowForwardChar(frameCur->windowCur, 1) == false)
                 {
                     resultStr[0] = 'F' ;
                     resultStr[1] = '\0' ;
-                    return meTRUE ;
+                    return true ;
                 }
             }
             soff = frameCur->windowCur->dotOffset ;
@@ -1884,7 +1884,7 @@ spellWord(int f, int n)
                 resultStr[0] = 'D' ;
                 setShowRegion(frameCur->bufferCur,frameCur->windowCur->dotLineNo,soff,frameCur->windowCur->dotLineNo,eoff) ;
                 frameCur->windowCur->updateFlags |= WFMOVEL|WFSELHIL ;
-                return meTRUE ;
+                return true ;
             }
             spellWordToLatinFont(word,(meUByte *) resultStr+1) ;
             if(wordCheck(word) <= 0)
@@ -1912,7 +1912,7 @@ spellWord(int f, int n)
                     break ;
         }
         if(!isSpllWord(cc))
-            return meFALSE ;
+            return false ;
         while(soff > 0)
         {
             --soff ;
@@ -1940,7 +1940,7 @@ spellWord(int f, int n)
         if(len < 0)
         {
             resultStr[0] = 'N' ;
-            return meTRUE ;
+            return true ;
         }
         spellWordToLatinFont(word,(meUByte *) resultStr+1) ;
     }
@@ -1983,7 +1983,7 @@ spellWord(int f, int n)
                 dict = dict->next ;
             }
         }
-        return meTRUE ;
+        return true ;
     }
     else if(n & SPELLWORD_DERIV)
     {
@@ -2060,7 +2060,7 @@ spellWord(int f, int n)
                     rr = rr->next ;
                 }
             }
-            return meTRUE ;
+            return true ;
         }
         if(((f = mlCharReply((meUByte *)"Rule flag: ",0,NULL,NULL)) < FRSTSPELLRULE) || (f > LASTSPELLRULE))
             return meABORT ;
@@ -2079,12 +2079,12 @@ spellWord(int f, int n)
             if(nwd != NULL)
             {
                 spellWordToUserFont((meUByte *) resultStr,nwd) ;
-                return meTRUE ;
+                return true ;
             }
             rr = rr->next ;
         }
         resultStr[0] = '\0' ;
-        return meTRUE ;
+        return true ;
     }
     else if(n & SPELLWORD_GUESS)
     {
@@ -2106,7 +2106,7 @@ spellWord(int f, int n)
             ll -= ii+1 ;
         }
         *dd = '\0' ;
-        return meTRUE ;
+        return true ;
     }
     wordCurr = NULL ;
     if(((f=wordCheck(word)) == meABORT) && (wordCurr != NULL))
@@ -2116,13 +2116,13 @@ spellWord(int f, int n)
         memcpy(resultStr+1,meWordGetFlag(wordCurr),f) ;
         resultStr[f+1] = '\0' ;
     }
-    else if(f == meTRUE)
+    else if(f == true)
         resultStr[0] = 'O' ;
     else
         resultStr[0] = 'E' ;
     if((n & SPELLWORD_INFO) && (wordCurr != NULL))
         meDictWordDump(wordCurr,(meUByte *) resultStr+1) ;
-    return meTRUE ;
+    return true ;
 }
 
 

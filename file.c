@@ -628,8 +628,8 @@ bufferOutOfDate(meBuffer *bp)
     meStat stats ;
     if((bp->fileName != NULL) && getFileStats(bp->fileName,0,&stats,NULL) &&
        meFiletimeIsModified(stats.stmtime,bp->stats.stmtime))
-        return meTRUE ;
-    return meFALSE ;
+        return true ;
+    return false ;
 }
 
 /* get current working directory
@@ -816,7 +816,7 @@ resetkey(meBuffer *bp) /* reset the encryption key if needed */
     {
         if((bp->cryptKey == NULL) &&
            (setBufferCryptKey(bp,NULL) <= 0))
-            return meFALSE ;
+            return false ;
 
         /* check crypt is still enabled (user may have removed the key) and set up the key to be used! */
         if(meModeTest(bp->mode,MDCRYPT))
@@ -825,7 +825,7 @@ resetkey(meBuffer *bp) /* reset the encryption key if needed */
             meCrypt(bp->cryptKey, meStrlen(bp->cryptKey));
         }
     }
-    return meTRUE ;
+    return true ;
 }
 #endif
 
@@ -1219,7 +1219,7 @@ readDirectory(meUByte *fname, meBuffer *bp, meLine *blp, meUInt flags)
         meModeClear(bp->mode,MDAUTOSV) ;
         meModeClear(bp->mode,MDUNDO) ;
     }
-    return meTRUE ;
+    return true ;
 }
 
 #else
@@ -1306,7 +1306,7 @@ readin(register meBuffer *bp, meUByte *fname)
 #if MEOPT_DIRLIST
                 if(readDirectory(fn,bp,bp->baseLine,0) <= 0)
                     goto error_end ;
-                ss = meTRUE ;
+                ss = true ;
                 goto newfile_end;
 #else
                 goto error_end ;
@@ -1336,7 +1336,7 @@ readin(register meBuffer *bp, meUByte *fname)
                 else
                 {
                     mlwrite(0,(meUByte *)"[New file %s]", fname);
-                    ss = meTRUE ;
+                    ss = true ;
                 }
                 /* its not linked to a file so change the flag */
                 bp->intFlag &= ~BIFFILE ;
@@ -1412,7 +1412,7 @@ readin(register meBuffer *bp, meUByte *fname)
         if(fn == afn)
             /* this is a recovered file so flag the buffer as changed */
             meModeSet(bp->mode,MDEDIT) ;
-        ss = meTRUE ;
+        ss = true ;
     }
     else
         meModeSet(bp->mode,MDVIEW) ;
@@ -1446,7 +1446,7 @@ meBufferInsertFile(meBuffer *bp, meUByte *fname, meUInt flags,
 
 #if MEOPT_CRYPT
     if(resetkey(bp) <= 0)
-        return meFALSE ;
+        return false ;
 #endif
     if(!(flags & meRWFLAG_SILENT))
         mlwrite(MWCURSOR|MWCLEXEC,(meUByte *)"[Inserting file]");
@@ -1467,7 +1467,7 @@ meBufferInsertFile(meBuffer *bp, meUByte *fname, meUInt flags,
 
     if(ss != meABORT)
     {
-        ss = meTRUE ;
+        ss = true ;
         if(!(flags & meRWFLAG_SILENT))
            mlwrite(MWCLEXEC,(meUByte *)"[inserted %d line%s]",nline,(nline==1) ? "":"s") ;
     }
@@ -1847,7 +1847,7 @@ nextWndFindFile(int f, int n)
     if(inputFileName((meUByte *)"Find file",fname,0) <= 0)
         return meABORT ;
     if(meWindowPopup(NULL,WPOP_MKCURR,NULL) == NULL)
-        return meFALSE ;
+        return false ;
     n = (n & (BFND_CREAT|BFND_BINARY|BFND_CRYPT|BFND_RBIN|BFND_NOHOOK)) | BFND_MKNAM ;
     return findSwapFileList(fname,n,0,0) ;
 }
@@ -1904,7 +1904,7 @@ writeCheck(meUByte *pathname, int flags, meStat *statp)
     meUByte dirbuf [meBUF_SIZE_MAX];
 #if MEOPT_SOCKET
     if(isFtpLink(pathname))
-        return meTRUE ;
+        return true ;
 #endif
     if(isUrlLink(pathname))
         return mlwrite (MWABORT,(meUByte *)"Cannot write to: %s",pathname);
@@ -1919,17 +1919,17 @@ writeCheck(meUByte *pathname, int flags, meStat *statp)
 #endif
     /* See if there is an existing file */
     if((flags & meWRITECHECK_CHECK) == 0)       /* Validity check enabled ?? */
-        return meTRUE;                          /* No - quit. */
+        return true;                          /* No - quit. */
     if(meTestExist(pathname))                   /* Does it exist ?? */
-        return meTRUE;                          /* No - quit */
+        return true;                          /* No - quit */
     if((statp != NULL) && !meStatTestWrite(*statp))
     {
         /* No - advised read only - see if the users wants to write */
         sprintf((char *)dirbuf, "%s is read only, overwrite", pathname);
         if((flags & meWRITECHECK_NOPROMPT) || (mlyesno(dirbuf) <= 0))
-            return ctrlg(meFALSE,1);
+            return ctrlg(false,1);
     }
-    return meTRUE;
+    return true;
 }
 
 static meUByte *
@@ -1965,7 +1965,7 @@ writeFileChecks(meUByte *dfname, meUByte *sfname, meUByte *lfname, int flags)
             sprintf((char *)prompt,"%s already exists, overwrite",fn) ;
             if((flags & meWRITECHECK_NOPROMPT) || (mlyesno(prompt) <= 0))
             {
-                ctrlg(meFALSE,1);
+                ctrlg(false,1);
                 return NULL ;
             }
         }
@@ -1998,7 +1998,7 @@ writeFileChecks(meUByte *dfname, meUByte *sfname, meUByte *lfname, int flags)
                     sprintf((char *)prompt, "Buffer %s is the same file, overwrite",bp->name) ;
                     if(mlyesno(prompt) <= 0)
                     {
-                        ctrlg(meFALSE,1);
+                        ctrlg(false,1);
                         return NULL ;
                     }
                 }
@@ -2028,7 +2028,7 @@ int
 fileOp(int f, int n)
 {
     meUByte sfname[meBUF_SIZE_MAX], dfname[meBUF_SIZE_MAX], lfname[meBUF_SIZE_MAX], *fn=NULL ;
-    int rr=meTRUE, dFlags=0, fileMask=-1 ;
+    int rr=true, dFlags=0, fileMask=-1 ;
 
     if((n & (meFILEOP_FTPCLOSE|meFILEOP_DELETE|meFILEOP_MOVE|meFILEOP_COPY|meFILEOP_MKDIR|meFILEOP_CHMOD|meFILEOP_TOUCH)) == 0)
         rr = mlwrite(MWABORT,(meUByte *)"[No operation set]") ;
@@ -2050,7 +2050,7 @@ fileOp(int f, int n)
                 sprintf((char *)lfname, "%s is read only, delete",sfname) ;
                 if((n & meFILEOP_NOPROMPT) || (mlyesno(lfname) <= 0))
                 {
-                    ctrlg(meFALSE,1);
+                    ctrlg(false,1);
                     rr = -8 ;
                 }
             }
@@ -2118,7 +2118,7 @@ fileOp(int f, int n)
         else if(n & meFILEOP_CHMOD)
         {
             meFileSetAttributes(sfname,meAtoi(dfname)) ;
-            return meTRUE ;
+            return true ;
         }
         else
         {
@@ -2156,7 +2156,7 @@ fileOp(int f, int n)
                 CloseHandle(fp) ;
             }
 #endif
-            return meTRUE ;
+            return true ;
         }
     }
     if(rr > 0)
@@ -2166,7 +2166,7 @@ fileOp(int f, int n)
         if(n & meFILEOP_FTPCLOSE)
             dFlags |= meRWFLAG_FTPCLOSE ;
         if((rr = ffFileOp(sfname,fn,dFlags,fileMask)) > 0)
-            return meTRUE ;
+            return true ;
     }
     resultStr[0] = '0' - rr ;
     resultStr[1] = '\0' ;
@@ -2248,7 +2248,7 @@ writeOut(register meBuffer *bp, meUInt flags, meUByte *fn)
     set_timestamp(bp);			/* Perform time stamping */
 #endif
     if(ffWriteFile(fn,flags,bp) <= 0)
-        return meFALSE ;
+        return false ;
     /* No write error.      */
     /* must be done before buffer is flagged as not changed */
 #if MEOPT_UNDO
@@ -2304,7 +2304,7 @@ writeOut(register meBuffer *bp, meUInt flags, meUByte *fn)
         else
             meModeClear(frameCur->bufferCur->mode,MDVIEW) ;
     }
-    return meTRUE ;
+    return true ;
 }
 
 static meUByte fileHasBinary[]="File had binary characters which will be lost, write" ;
@@ -2341,12 +2341,12 @@ writeout(register meBuffer *bp, int flags)
                 meUByte prompt[meBUF_SIZE_MAX] ;
                 sprintf((char *) prompt,"%s modified, write",bp->fileName) ;
                 if(mlyesno(prompt) <= 0)
-                    return ctrlg(meFALSE,1) ;
+                    return ctrlg(false,1) ;
             }
             if(bp->fileFlag & (meBFFLAG_BINARY|meBFFLAG_LTDIFF))
             {
                 if(mlyesno((bp->fileFlag & meBFFLAG_BINARY) ? fileHasBinary:fileHasInLnEn) <= 0)
-                    return ctrlg(meFALSE,1) ;
+                    return ctrlg(false,1) ;
                 bp->fileFlag &= ~(meBFFLAG_BINARY|meBFFLAG_LTDIFF) ;
             }                
         }
@@ -2400,17 +2400,17 @@ writeBuffer(int f, int n)
 
     if((n & 0x01) && (frameCur->bufferCur->fileFlag & (meBFFLAG_BINARY|meBFFLAG_LTDIFF)) &&
        (mlyesno((frameCur->bufferCur->fileFlag & meBFFLAG_BINARY) ? fileHasBinary:fileHasInLnEn) <= 0))
-        return ctrlg(meFALSE,1);
+        return ctrlg(false,1);
     if((fn=writeFileChecks(fname,fn,lname,(n & 0x01)|meWRITECHECK_BUFFER)) == NULL)
         return meABORT ;
     
     if(!writeOut(frameCur->bufferCur,((n & 0x02) ? meRWFLAG_IGNRNRRW:0),fn))
-        return meFALSE ;
+        return false ;
 
     resetBufferNames(frameCur->bufferCur,fname) ;
     frameAddModeToWindows(WFMODE) ; /* and update ALL mode lines */
 
-    return meTRUE ;
+    return true ;
 }
 
 /*
@@ -2445,7 +2445,7 @@ int
 saveSomeBuffers(int f, int n)
 {
     register meBuffer *bp;    /* scanning pointer to buffers */
-    register int status=meTRUE ;
+    register int status=true ;
     meUByte prompt[meBUF_SIZE_MAX] ;
 
     bp = bheadp;
@@ -2460,7 +2460,7 @@ saveSomeBuffers(int f, int n)
                 else
                     sprintf((char *)prompt, "%s: Save buffer (?/y/n/a/o/g) ? ", bp->name) ;
                 if((status = mlCharReply(prompt,mlCR_LOWER_CASE,(meUByte *)"ynaog",(meUByte *)"(Y)es, (N)o, Yes to (a)ll, N(o) to all, (G)oto, (C-g)Abort ? ")) < 0)
-                    return ctrlg(meFALSE,1) ;
+                    return ctrlg(false,1) ;
                 else if(status == 'g')
                 {
                     swbuffer(frameCur->windowCur,bp) ;
@@ -2470,12 +2470,12 @@ saveSomeBuffers(int f, int n)
                 else if(status == 'o')
                     break ;
                 else if(status == 'n')
-                    status = meFALSE ;
+                    status = false ;
                 else
                 {
                     if(status == 'a')
                         n ^= 1 ;
-                    status = meTRUE ;
+                    status = true ;
                 }
             }
             if((status > 0) && (writeout(bp,0) <= 0))
@@ -2484,7 +2484,7 @@ saveSomeBuffers(int f, int n)
         bp = bp->next;            /* on to the next buffer */
     }
     frameAddModeToWindows(WFMODE) ;  /* and update ALL mode lines */
-    return meTRUE ;
+    return true ;
 }
 
 #if MEOPT_EXTENDED
@@ -2508,7 +2508,7 @@ appendBuffer(int f, int n)
             meUByte prompt[meBUF_SIZE_MAX];
             sprintf((char *)prompt, "%s does not exist, create",fn) ;
             if(mlyesno(prompt) <= 0)
-                return ctrlg(meFALSE,1);
+                return ctrlg(false,1);
         }
         flags = 0 ;
     }
@@ -2548,7 +2548,7 @@ changeFileName(int f, int n)
     fn = (lname[0] == '\0') ? fname:lname ;
     meNullFree(frameCur->bufferCur->fileName) ;
 
-    if (s == meFALSE)
+    if (s == false)
         frameCur->bufferCur->fileName = NULL ;
     else
         frameCur->bufferCur->fileName = meStrdup(fname) ;
@@ -2561,7 +2561,7 @@ changeFileName(int f, int n)
 #endif
     frameAddModeToWindows(WFMODE) ;  /* and update ALL mode lines */
 
-    return (meTRUE);
+    return (true);
 }
 #endif
 

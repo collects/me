@@ -208,7 +208,7 @@ meShell(int f, int n)
     else
         ss = system(cp);
     TTopen();
-    sgarbf = meTRUE;
+    sgarbf = true;
 #endif
 #ifdef _UNIX
 #ifdef _XTERM
@@ -224,7 +224,7 @@ meShell(int f, int n)
         case -1:
             ss = mlwrite(MWABORT,(meUByte *)"exec failed, %s", sys_errlist[errno]);
         default:
-            ss = meTRUE ;
+            ss = true ;
         }
     }
     else
@@ -232,9 +232,9 @@ meShell(int f, int n)
     {
 	TTclose();				/* stty to old settings */
 	ss = system((char *)getShellCmd()) ;
-	sgarbf = meTRUE;
+	sgarbf = true;
 	TTopen();
-	ss = (ss < 0) ? meFALSE:meTRUE ;
+	ss = (ss < 0) ? false:true ;
     }
 #endif
     if(cd)
@@ -271,7 +271,7 @@ doShellCommand(meUByte *cmdstr, int flags)
     if(((pp=meStrchr(cmdstr,'<')) == NULL) || (flags & LAUNCH_NOWAIT))
     {
         if((cmdline = meMalloc(meStrlen(cmdstr)+16)) == NULL)
-            return meFALSE ;
+            return false ;
         meStrcpy(cmdline,cmdstr) ;
         if(pp == NULL)
             meStrcat(cmdline," </dev/null") ;
@@ -285,12 +285,12 @@ doShellCommand(meUByte *cmdstr, int flags)
     if(WIFEXITED(ws))
     {
         systemRet = WEXITSTATUS(ws) ;
-        ss = meTRUE ;
+        ss = true ;
     }
     else
     {
         systemRet = -1 ;
-        ss = meFALSE ;
+        ss = false ;
     }
     if(cmdline != cmdstr)
         meFree(cmdline) ;
@@ -306,7 +306,7 @@ doShellCommand(meUByte *cmdstr, int flags)
      */
     TTopen() ;
 #endif
-    ss = (systemRet < 0) ? meFALSE:meTRUE ;
+    ss = (systemRet < 0) ? false:true ;
 #endif
 #endif
 
@@ -357,10 +357,10 @@ ipipeFindChildWindow(HWND hwnd, long lipipe)
     if (process == ipipe->processId)
     {
         ipipe->childWnd = hwnd ;
-        return meFALSE ;
+        return false ;
     }
     /* keep looking */
-    return meTRUE ;
+    return true ;
 }
 
 static HWND
@@ -373,7 +373,7 @@ ipipeGetChildWindow(meIPipe *ipipe)
 
 #ifdef _WIN32s
 
-#define ipipeKillProcessTree(ppid) meFALSE
+#define ipipeKillProcessTree(ppid) false
 
 #else
 
@@ -409,16 +409,16 @@ ipipeKillProcessTree(DWORD ppid)
         }
     } 
     if(procCreateSnapshot == NULL)
-        return meFALSE ;
+        return false ;
  
     procSnap = procCreateSnapshot(TH32CS_SNAPPROCESS,0) ; 
     if(procSnap == INVALID_HANDLE_VALUE)
-        return meFALSE ;
+        return false ;
     
     if((pidList = meMalloc(64*sizeof(DWORD))) == NULL)
     {
         CloseHandle(procSnap) ;
-        return meFALSE ;
+        return false ;
     }
     pidList[0] = ppid ;
     pidCount = 1 ;
@@ -436,7 +436,7 @@ ipipeKillProcessTree(DWORD ppid)
                    ((pidList = meRealloc(pidList,(pidCount+64)*sizeof(DWORD))) == NULL))
                 {
                     CloseHandle(procSnap) ;
-                    return meFALSE ;
+                    return false ;
                 }
                 pidList[pidCount++] = pe.th32ProcessID ;
             }
@@ -450,7 +450,7 @@ ipipeKillProcessTree(DWORD ppid)
         if((procHandle = OpenProcess(PROCESS_TERMINATE,FALSE,pidList[pidCur])) != NULL)
             TerminateProcess(procHandle,999) ;
     }
-    return meTRUE ;
+    return true ;
 }
 #endif
 #endif
@@ -499,12 +499,12 @@ ipipeKillBuf(meIPipe *ipipe, int type)
                 {
                     foreThread = GetWindowThreadProcessId(foreWnd,NULL) ;
                     if((GetCurrentThreadId() == foreThread) || 
-                       !AttachThreadInput(GetCurrentThreadId(),foreThread,meTRUE))
+                       !AttachThreadInput(GetCurrentThreadId(),foreThread,true))
                         foreThread = 0 ;
                     
                     chldThread = ipipe->processId ;
                     if((GetCurrentThreadId() == chldThread) || 
-                       !AttachThreadInput(GetCurrentThreadId(),chldThread,meTRUE))
+                       !AttachThreadInput(GetCurrentThreadId(),chldThread,true))
                         chldThread = 0;
                     
                     /* Set the fore window to the child */
@@ -536,9 +536,9 @@ ipipeKillBuf(meIPipe *ipipe, int type)
                     }
                     /* Detach the threads */
                     if(foreThread)
-                        AttachThreadInput(GetCurrentThreadId(),foreThread,meFALSE);
+                        AttachThreadInput(GetCurrentThreadId(),foreThread,false);
                     if(chldThread)
-                        AttachThreadInput(GetCurrentThreadId(),chldThread,meFALSE);
+                        AttachThreadInput(GetCurrentThreadId(),chldThread,false);
                 }
             
                 /* one other thing we can do is to send a Ctrl-C event if we are trying
@@ -580,13 +580,13 @@ ipipeKill(int f, int n)
     if(!meModeTest(frameCur->bufferCur->mode,MDPIPE))
     {
         TTbell() ;
-        return meFALSE ;
+        return false ;
     }
     ipipe = ipipes ;
     while(ipipe->bp != frameCur->bufferCur)
         ipipe = ipipe->next ;
     ipipeKillBuf(ipipe,n) ;
-    return meTRUE ;
+    return true ;
 }
 
 void
@@ -685,7 +685,7 @@ readFromPipe(meIPipe *ipipe, int nbytes, meUByte *buff)
     }        
     /* Must peek on a pipe cos if we try to read too many this will fail */
     if((PeekNamedPipe(ipipe->rfd, (LPVOID) NULL, (DWORD) 0,
-                      (LPDWORD) NULL, &bytesRead, (LPDWORD) NULL) != meTRUE) ||
+                      (LPDWORD) NULL, &bytesRead, (LPDWORD) NULL) != true) ||
        (bytesRead <= 0))
         return 0 ;
     if(bytesRead > (DWORD) nbytes)
@@ -1267,7 +1267,7 @@ cant_handle_this:
         }
         meFrameLoopEnd() ;
     }
-    update(meFALSE) ;
+    update(false) ;
 }
 
 int
@@ -1288,7 +1288,7 @@ ipipeWrite(int f, int n)
         ipipe = ipipe->next ;
     ipipeWriteString(ipipe,n,buff) ;
 
-    return meTRUE ;
+    return true ;
 }
 
 int
@@ -1355,7 +1355,7 @@ ipipeSetSize(meWindow *wp, meBuffer *bp)
 #endif /* TIOCSWINSZ/TIOCGWINSZ */
 #endif /* _UNIX */
     }
-    return meTRUE ;
+    return true ;
 }
 
 #ifdef _UNIX
@@ -1553,10 +1553,10 @@ doIpipeCommand(meUByte *comStr, meUByte *path, meUByte *bufName, int ipipeFunc, 
     {
         sprintf((char *)line,"%s already active, kill",bufName) ;
         if(mlyesno(line) <= 0)
-            return meFALSE ;
+            return false ;
     }
     if((ipipe = meMalloc(sizeof(meIPipe))) == NULL)
-        return meFALSE ;
+        return false ;
     cd = (meStrcmp(path,curdir) && (meChdir(path) != -1)) ;
 
 #ifdef _WIN32
@@ -1571,7 +1571,7 @@ doIpipeCommand(meUByte *comStr, meUByte *path, meUByte *bufName, int ipipeFunc, 
              * doesn't work) Try doPipe instead and maintain the same
              * environment as the macros may rely on callbacks etc. */
             return doPipeCommand(comStr,path,bufName,ipipeFunc,flags) ;
-        return meFALSE;
+        return false;
     }
 #else
 
@@ -1884,7 +1884,7 @@ doIpipeCommand(meUByte *comStr, meUByte *path, meUByte *bufName, int ipipeFunc, 
     bp->dotLineNo = bp->lineCount-1 ;
     resetBufferWindows(bp) ;
 
-    return meTRUE ;
+    return true ;
 }
 
 int
@@ -1947,8 +1947,8 @@ anyActiveIpipe(void)
        ((ipipes->pid == 0) && (ipipes->next == NULL))
 #endif
        )
-        return meFALSE ;
-    return meTRUE ;
+        return false ;
+    return true ;
 }
 
 #endif
@@ -1982,7 +1982,7 @@ doPipeCommand(meUByte *comStr, meUByte *path, meUByte *bufName, int ipipeFunc, i
 
     /* get rid of the output buffer if it exists and create new */
     if((bp=bfind(bufName,BFND_CREAT|BFND_CLEAR)) == NULL)
-        return meFALSE ;
+        return false ;
     cd = (meStrcmp(path,curdir) && (meChdir(path) != -1)) ;
 
 #ifdef _DOS
@@ -1990,7 +1990,7 @@ doPipeCommand(meUByte *comStr, meUByte *path, meUByte *bufName, int ipipeFunc, i
         pipeStderr = (meGetenv("ME_PIPE_STDERR") != NULL) ? 1 : -1 ;
     
     if((cl = meMalloc(meStrlen(comStr) + meStrlen(filnam) + 4)) == NULL)
-        return meFALSE ;
+        return false ;
         
     dd = cl ;
     ss = comStr ;
@@ -2029,7 +2029,7 @@ doPipeCommand(meUByte *comStr, meUByte *path, meUByte *bufName, int ipipeFunc, i
     TTopen();
     meFree(cl) ;
     if(meTestExist(filnam))
-        return meFALSE;
+        return false;
 #endif
 #ifdef _WIN32
     
@@ -2040,14 +2040,14 @@ doPipeCommand(meUByte *comStr, meUByte *path, meUByte *bufName, int ipipeFunc, i
                            &systemRet) ;
     if(cd)
         meChdir(curdir) ;
-    if(ret == meFALSE)
-        return meFALSE ;
+    if(ret == false)
+        return false ;
 
 #endif
 #ifdef _UNIX
     ll = meStrlen(comStr) ;
     if((cl = meMalloc(ll + 17)) == NULL)
-        return meFALSE ;
+        return false ;
     
     if((ss=meStrchr(comStr,'|')) == NULL)
         ss = comStr + ll ;
@@ -2223,8 +2223,8 @@ meFilter(int f, int n)
     strcat(line, filnam2);
     mlerase(MWERASE|MWCURSOR);
     system(line);
-    sgarbf = meTRUE;
-    s = meTRUE;
+    sgarbf = true;
+    s = true;
 #endif
 #ifdef _WIN32
     s = WinLaunchProgram(line,LAUNCH_FILTER,filnam1,filnam2,
@@ -2232,7 +2232,7 @@ meFilter(int f, int n)
                          NULL,
 #endif
                          NULL);
-    sgarbf = meTRUE;
+    sgarbf = true;
 #endif
 #ifdef _UNIX
     TTclose();			/* stty to old modes	*/
@@ -2250,8 +2250,8 @@ meFilter(int f, int n)
                     exitstatus, errno);
     }
     TTopen();
-    sgarbf = meTRUE;
-    s = meTRUE;
+    sgarbf = true;
+    s = true;
 #endif
 
     /* on failure, escape gracefully */
@@ -2260,7 +2260,7 @@ meFilter(int f, int n)
         bp->fileName = filnam2 ;
         if((bclear(bp) <= 0) ||
            ((frameCur->bufferCur->intFlag |= BIFFILE),(swbuffer(frameCur->windowCur,frameCur->bufferCur) <= 0)))
-            s = meFALSE ;
+            s = false ;
     }
     /* reset file name */
     bp->fileName = tmpnam ;
@@ -2292,14 +2292,14 @@ suspendEmacs(int f, int n)		/* suspend MicroEMACS and wait to wake up */
     ** in it.
     */
     if((n & 0x01) && (mlyesno((meUByte *)"Suspend") <= 0))
-        return meFALSE ;
+        return false ;
 
     TTclose();				/* stty to old settings */
     kill(getpid(), SIGTSTP);
     TTopen();
-    sgarbf = meTRUE;
+    sgarbf = true;
 
-    return meTRUE ;
+    return true ;
 }
 #endif
 #endif

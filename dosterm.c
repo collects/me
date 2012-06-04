@@ -700,8 +700,8 @@ ibmChangeSRes(void)
         rg.h.bh = 0 ;		/* set screen page number */
         int86(0x10, &rg, &rg);
 #endif
-        frameChangeDepth(meTRUE,row-(frameCur->depth+1));
-        frameChangeWidth(meTRUE,col-frameCur->width);
+        frameChangeDepth(true,row-(frameCur->depth+1));
+        frameChangeWidth(true,col-frameCur->width);
     }
     /* Stop that horrible blinking */
     rg.x.ax = 0x1003;		/* blink state dos call */
@@ -738,7 +738,7 @@ ibmChangeSRes(void)
         mouseState |= (rg.x.bx & MOUSE_STATE_BUTTONS) ;
     }
 #endif
-    sgarbf = meTRUE ;
+    sgarbf = true ;
 }
 
 int
@@ -799,7 +799,7 @@ TTopen(void)
 
     ibmChangeSRes() ;
 
-    return meTRUE ;
+    return true ;
 }
 
 int
@@ -858,7 +858,7 @@ changeFont(int f, int n)
     dosResMode = mode ;
     dosResSpecial = meAtoi(buf) ;
     ibmChangeSRes() ;
-    return meTRUE ;
+    return true ;
 }
 
 int
@@ -889,7 +889,7 @@ TTaddColor(meColor index, meUByte r, meUByte g, meUByte b)
     }
     colTable[index] = jj ;
     
-    return meTRUE ;
+    return true ;
 }
 
 void
@@ -897,7 +897,7 @@ TTsleep(int msec, int intable, meVarList *waitVarList)
 {
     meUByte *ss ;
     
-    if(intable && ((kbdmode == mePLAY) || (clexec == meTRUE)))
+    if(intable && ((kbdmode == mePLAY) || (clexec == true)))
         return ;
 
     if(msec >= 0)

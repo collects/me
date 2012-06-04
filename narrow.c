@@ -125,7 +125,7 @@ meBufferCreateNarrow(meBuffer *bp, meLine *slp, meLine *elp, meInt sln, meInt el
     nrrw->slp = slp ;
     nrrw->elp = meLineGetPrev(elp) ;
     nrrw->sln = sln ;
-    nrrw->expanded = meFALSE ;
+    nrrw->expanded = false ;
     slp->prev->next = elp ;
     elp->prev = slp->prev ;
     bp->lineCount -= nln ;
@@ -179,7 +179,7 @@ meBufferExpandNarrow(meBuffer *bp, register meNarrow *nrrw, meUByte *firstLine, 
     meLine *lp1, *lp2 ;
     meInt noLines, markup ;
     
-    meAssert(nrrw->expanded == meFALSE) ;
+    meAssert(nrrw->expanded == false) ;
 
     if(!undoCall)
         meAnchorGet(bp,nrrw->name) ;
@@ -204,7 +204,7 @@ meBufferExpandNarrow(meBuffer *bp, register meNarrow *nrrw, meUByte *firstLine, 
     nrrw->elp->next = lp2 ;
     lp2->prev = nrrw->elp ;
     bp->lineCount += noLines ;
-    nrrw->expanded = meTRUE ;
+    nrrw->expanded = true ;
     
     meFrameLoopBegin() ;
     for (wp=loopFrame->windowList; wp!=NULL; wp=wp->next)
@@ -444,7 +444,7 @@ meBufferCollapseNarrowAll(meBuffer *bp)
                 nrrw->elp->next->prev = nrrw->slp->prev ;
             }
             bp->lineCount -= noLines ;
-            nrrw->expanded = meFALSE ;
+            nrrw->expanded = false ;
             meAnchorGet(bp,nrrw->name) ;
             meFrameLoopBegin() ;
             for (wp=loopFrame->windowList; wp!=NULL; wp=wp->next)
@@ -559,7 +559,7 @@ narrowBuffer(int f, int n)
     
         while(frameCur->bufferCur->narrow != NULL)
             meBufferRemoveNarrow(frameCur->bufferCur,frameCur->bufferCur->narrow,NULL,0) ;
-        return meTRUE ;
+        return true ;
     }
     else if(n == 2)
     {
@@ -567,7 +567,7 @@ narrowBuffer(int f, int n)
            ((nrrw=meLineGetNarrow(frameCur->bufferCur,frameCur->windowCur->dotLine)) != NULL))
         {
             meBufferRemoveNarrow(frameCur->bufferCur,nrrw,NULL,0) ;
-            return meTRUE ;
+            return true ;
         }
         return mlwrite(MWABORT|MWCLEXEC,(meUByte *)"[No narrow on current line]") ;
     }
@@ -636,7 +636,7 @@ narrowBuffer(int f, int n)
         {
             if((nrrw=meBufferCreateNarrow(frameCur->bufferCur,elp,frameCur->bufferCur->baseLine,eln,
                                           frameCur->bufferCur->lineCount,meNARROW_TYPE_TO_BOTTOM,scheme,ml2,markupCmd,0)) == NULL)
-                return meFALSE ;
+                return false ;
             n = meANCHOR_NARROW | meNARROW_TYPE_TO_TOP | (nrrw->name & meNARROW_NUMBER_MASK) ;
         }
         if(sln != 0)
@@ -645,6 +645,6 @@ narrowBuffer(int f, int n)
     }
     else
         nrrw = meBufferCreateNarrow(frameCur->bufferCur,slp,elp,sln,eln,meNARROW_TYPE_OUT,scheme,ml1,markupCmd,0) ;
-    return (nrrw == NULL) ? meFALSE:meTRUE ;
+    return (nrrw == NULL) ? false:true ;
 }
 #endif

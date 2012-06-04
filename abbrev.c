@@ -59,7 +59,7 @@ setAbbrev(int f, int n, meAbbrev **abrevPtr)
             abrev->loaded = 0 ;
             meLineLoopFree(&(abrev->hlp),0) ;
         }
-        return meTRUE ;
+        return true ;
     }
         
     if((status=meGetString((meUByte *)"Abbrev file",MLFILECASE,0,buf,meBUF_SIZE_MAX)) <= 0)
@@ -89,7 +89,7 @@ setAbbrev(int f, int n, meAbbrev **abrevPtr)
     }
     *abrevPtr = abrev ;
     
-    return meTRUE ;
+    return true ;
 }
 
 int
@@ -131,11 +131,11 @@ doExpandAbbrev(meUByte *abName, int abLen, meAbbrev *abrev)
             ldelete(abLen,2) ;
             /* grab token */
             token(lp->text+abLen,buf);
-            return stringExec(meFALSE,1,buf+1) ;
+            return stringExec(false,1,buf+1) ;
         }
         lp = meLineGetNext(lp) ;
     }
-    return meFALSE ;
+    return false ;
 }
 
 int
@@ -155,9 +155,9 @@ expandAbbrev(int f, int n)
             len++ ;
         strncpy((char *) buf,(char *) &(frameCur->windowCur->dotLine->text[++ii]),len) ;
         if(((frameCur->bufferCur->abbrevFile != NULL) && 
-            ((ii=doExpandAbbrev(buf,len,frameCur->bufferCur->abbrevFile)) != meFALSE)) ||
+            ((ii=doExpandAbbrev(buf,len,frameCur->bufferCur->abbrevFile)) != false)) ||
            ((globalAbbrevFile != NULL) && 
-            ((ii=doExpandAbbrev(buf,len,globalAbbrevFile)) != meFALSE)))
+            ((ii=doExpandAbbrev(buf,len,globalAbbrevFile)) != false)))
             return ii ;
     }
     /* We used to insert a space if the expansion was not defined
@@ -165,7 +165,7 @@ expandAbbrev(int f, int n)
      * if we are not in a macro and return a false condition. The
      * error is not serious enough to abort */
     mlwrite (MWCLEXEC,(meUByte *)"[No abbrev expansion defined]"); 
-    return meFALSE;
+    return false;
     
 }
 #endif

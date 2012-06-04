@@ -112,7 +112,7 @@ meGetKey(int flag)
     register meUShort cc ;	/* character fetched */
     
     /* check to see if we are executing a command line */
-    if(clexec == meTRUE)
+    if(clexec == true)
     {
         meUByte *tp;		/* pointer into the token */
         meUByte tok[meBUF_SIZE_MAX];	/* command incoming */
@@ -162,10 +162,10 @@ meGetKey(int flag)
             execstr = tp ;
         /* Force an update of the screen to to ensure that the user
          * can see the information in the correct location */
-        update (meTRUE);
+        update (true);
     }
     /* or the normal way */
-    cc = meGetKeyFromUser(meFALSE,0,flag) ;
+    cc = meGetKeyFromUser(false,0,flag) ;
     
     return cc ;
 }
@@ -292,7 +292,7 @@ descKey(int f, int n)	/* describe the command for a certain key */
     /* output the resultant string */
     mlwrite(MWCURSOR,(meUByte *)"%s\"%s\" %s%s",dskyPrompt,outseq,argStr,ptr);
     
-    return meTRUE ;
+    return true ;
 }
 
 #if MEOPT_EXTENDED
@@ -363,7 +363,7 @@ setCharMask(int f, int n)
     
     meStrcpy(tnkyPrompt+14,"flags") ;
     if(meGetString(tnkyPrompt,0,0,buf1,20) <= 0)
-        return meFALSE ;
+        return false ;
     /* setup the masks */
     flags = 0 ;
     ss = buf1 ;
@@ -473,7 +473,7 @@ setCharMask(int f, int n)
             return mlwrite(MWABORT,(meUByte *)"[Cannot set flags u, l, A, L or U]");
         meStrcpy(tnkyPrompt+14,"chars") ;
         if(meGetString(tnkyPrompt,MLFFZERO,0,buf1,meBUF_SIZE_MAX) <= 0)
-            return meFALSE ;
+            return false ;
         if(flags & 0x20000)
         {
             ss = buf1 ;
@@ -502,7 +502,7 @@ setCharMask(int f, int n)
                 meFree(charKeyboardMap) ;
                 charKeyboardMap = NULL ;
             }
-            return meTRUE ;
+            return true ;
         }
         if(flags & 0x4000)
         {
@@ -520,7 +520,7 @@ setCharMask(int f, int n)
                 charLatinUserTbl[c1] = c2 ;
                 charUserLatinTbl[c2] = c1 ;
             }
-            return meTRUE ;
+            return true ;
         }
         /* convert the string to user font and take out any LEADER padding, 0's are now 0's so need int count */
         ss = buf1 ;
@@ -576,7 +576,7 @@ setCharMask(int f, int n)
             }
         }
     }
-    return meTRUE ;
+    return true ;
 }
 #endif
 
@@ -651,9 +651,9 @@ bindkey(meUByte *prom, int f, int n, meUShort *lclNoBinds, meBind **lclBinds)
     /*---	Get the function name to bind it to */
     
     if(meGetString(prom, MLCOMMAND, 0, buf, meBUF_SIZE_MAX) <= 0)
-        return meFALSE ;
+        return false ;
     if((namidx = decode_fncname(buf,0)) < 0)
-        return meFALSE ;
+        return false ;
     kfunc = getCommandFunc(namidx) ;
 
     /*---	Prompt the user to type in a key to bind */
@@ -722,7 +722,7 @@ bindkey(meUByte *prom, int f, int n, meUShort *lclNoBinds, meBind **lclBinds)
             {
                 ktp[ss].index = (meUShort) namidx;
                 ktp[ss].arg   = arg ;
-                return meTRUE ;
+                return true ;
             }
             if(ktp[ss].code == 0)
                 kk = ktp+ss ;
@@ -737,7 +737,7 @@ bindkey(meUByte *prom, int f, int n, meUShort *lclNoBinds, meBind **lclBinds)
         {
             if((ktp = *lclBinds = 
                 meRealloc(ktp,(++(*lclNoBinds))*sizeof(meBind))) == NULL)
-                return meFALSE ;
+                return false ;
             ktp[ss].code  = cc ;
             ktp[ss].index = (meUShort) namidx ;
             ktp[ss].arg   = arg ;
@@ -751,7 +751,7 @@ bindkey(meUByte *prom, int f, int n, meUShort *lclNoBinds, meBind **lclBinds)
             {
                 ktp->index = (meUShort) namidx;
                 ktp->arg   = arg ;
-                return meTRUE ;
+                return true ;
             }
         
         /*---	Otherwise we  need to  add it  to the  end, if  we run  out of
@@ -760,7 +760,7 @@ bindkey(meUByte *prom, int f, int n, meUShort *lclNoBinds, meBind **lclBinds)
         if(insert_key(cc, (meUShort) namidx, arg) <= 0)
             return mlwrite(MWABORT,(meUByte *)"Binding table FULL!");
     }
-    return(meTRUE);
+    return(true);
 }
 
 
@@ -796,7 +796,7 @@ unbindkey(meUByte *prom, int n, meUShort *lclNoBinds, meBind **lclBinds)
     {
         sprintf((char *)outseq,"Remove all %s binds",prom);
         if(mlyesno(outseq) <= 0)
-            return ctrlg(meFALSE,1) ;
+            return ctrlg(false,1) ;
         
 #if MEOPT_LOCALBIND
         if(lclNoBinds != NULL)
@@ -843,7 +843,7 @@ unbindkey(meUByte *prom, int n, meUShort *lclNoBinds, meBind **lclBinds)
             }
 #endif
         }
-        return meTRUE ;
+        return true ;
     }
         
     /*---	Prompt the user to type in a key to unbind */
@@ -871,7 +871,7 @@ unbindkey(meUByte *prom, int n, meUShort *lclNoBinds, meBind **lclBinds)
         register meBind *ktp ;
         register int	 ss;
         
-        rr = meFALSE ;
+        rr = false ;
         ktp = *lclBinds ;
         ss = *lclNoBinds ;
         while(--ss >= 0)
@@ -879,7 +879,7 @@ unbindkey(meUByte *prom, int n, meUShort *lclNoBinds, meBind **lclBinds)
             if(ktp[ss].code == cc)
             {
                 ktp[ss].code = ME_INVALID_KEY ;
-                rr = meTRUE ;
+                rr = true ;
             }
         }
     }
@@ -934,9 +934,9 @@ unbindkey(meUByte *prom, int n, meUShort *lclNoBinds, meBind **lclBinds)
                 reptc = ME_INVALID_KEY ;
         }
     }
-    if(rr == meFALSE)	/* if it isn't bound, bitch */
+    if(rr == false)	/* if it isn't bound, bitch */
         return mlwrite(MWABORT|MWCLEXEC,(meUByte *)"[%s Key \"%s\" not bound]", prom,outseq);
-    return meTRUE ;
+    return true ;
 }
 
 int
@@ -1034,7 +1034,7 @@ buildlist(int n, meUByte *mstring)
     wp->dotLine = meLineGetNext(bp->baseLine);    /* back to the beginning */
     wp->dotOffset = 0;
     mlerase(MWCLEXEC);          	/* clear the mode line */
-    return(meTRUE);
+    return(true);
 }
 
 
@@ -1104,7 +1104,7 @@ descBindings (int f, int n)
     meBind *ktp;
     
     if((wp = meWindowPopup(BbindingsN,(BFND_CREAT|BFND_CLEAR|WPOP_USESTR),NULL)) == NULL)
-        return meFALSE ;
+        return false ;
     bp = wp->buffer ;
     
 #if MEOPT_LOCALBIND
@@ -1141,7 +1141,7 @@ descBindings (int f, int n)
     meModeSet(bp->mode,MDVIEW) ;      /* put this buffer view mode */
     resetBufferWindows(bp) ;            /* Update the window */
     mlerase(MWCLEXEC);	                /* clear the mode line */
-    return meTRUE ;
+    return true ;
 }
      
 

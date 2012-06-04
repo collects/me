@@ -160,7 +160,7 @@ printColor (int f, int n)
         meNullFree(printer.color) ;
         printer.color = NULL ;
         printer.colorNum = 0;
-        return meTRUE ;
+        return true ;
     }
         
     /* Get the color number and color */
@@ -172,7 +172,7 @@ printColor (int f, int n)
          (meGetString((meUByte *)"Green",0,0,buf,20) == meABORT)) ||
         ((color = mePrintColorSetGreen(color,meAtoi(buf))),
          (meGetString((meUByte *)"Blue",0,0,buf,20) == meABORT)))
-        return meFALSE;
+        return false;
     color = mePrintColorSetBlue(color,meAtoi(buf)) ;
 
     /* Add a new entry to the printer color table */
@@ -191,7 +191,7 @@ printColor (int f, int n)
         printer.colorNum = colNo+1;
     }
     printer.color[colNo] = color ;
-    return meTRUE ;
+    return true ;
 }
 int
 printScheme (int f, int n)
@@ -207,7 +207,7 @@ printScheme (int f, int n)
         meNullFree(printer.scheme) ;
         printer.scheme = NULL ;
         printer.schemeNum = 0;
-        return meTRUE ;
+        return true ;
     }
         
     /* Get the scheme number and scheme */
@@ -219,7 +219,7 @@ printScheme (int f, int n)
          (meGetString((meUByte *)"Back-col",0,0,buf,meBUF_SIZE_MAX) == meABORT)) ||
         ((bc = (meUByte) meAtoi(buf)),
          (meGetString((meUByte *)"Font",0,0,buf,meBUF_SIZE_MAX) == meABORT)))
-        return meFALSE;
+        return false;
     ff = (meUByte) meAtoi(buf) ;
     
     /* create the scheme */
@@ -241,7 +241,7 @@ printScheme (int f, int n)
         printer.schemeNum = schmNo+1;
     }
     printer.scheme[schmNo] = scheme ;
-    return meTRUE ;
+    return true ;
 }
 
 static int
@@ -462,7 +462,7 @@ printGetParams (void)
     /* Default the output states */
     if (printer.param[mePS_BUFFER].p == NULL)
         printer.param[mePS_BUFFER].p = (meUByte *)"*printer*";
-    return meTRUE;
+    return true;
 }
 
 /*
@@ -523,7 +523,7 @@ printComputePageSetup (int f)
                 printer.param[mePI_PAGEY].l,
                 printer.param[mePI_COLS],
                 printer.param[mePI_ROWS]);
-    return meTRUE;
+    return true;
 }
 
 /*
@@ -538,7 +538,7 @@ printInit (int f, int n)
 #endif
     /* Get the parameters out of the registry. */
     if (printGetParams () <= 0)
-        return meFALSE;
+        return false;
     
     /* if the line numbers aren't required then set printer.pLineNumDigits to zero
      * so we only have to check that value */
@@ -550,11 +550,11 @@ printInit (int f, int n)
      * and the setup dialog if required.
      */
     if (printer.pInternal && (printSetup(n) <= 0))
-        return meFALSE;
+        return false;
 #endif
     
     if (printComputePageSetup (f) <= 0)
-        return meFALSE;
+        return false;
     
     if(n < 0)
     {
@@ -566,7 +566,7 @@ printInit (int f, int n)
         regSet(regPrint, printNames[mePI_PAGEX], meItoa(printer.param[mePI_PAGEX].l));
         regSet(regPrint, printNames[mePI_PAGEY], meItoa(printer.param[mePI_PAGEY].l));
     }
-    return meTRUE;
+    return true;
 }
 
 /*
@@ -1249,7 +1249,7 @@ printAddLine (meBuffer *bp, meLine *lp)
 
         /* Construct a new composition line */
         if ((nlp=meLineMalloc(ll,0)) == NULL)
-            return (meFALSE);
+            return (false);
         printLinkLine (bp,nlp,ii++);
 
         /* Write the line numbers into the buffer if required */
@@ -1318,7 +1318,7 @@ printAddLine (meBuffer *bp, meLine *lp)
         nlp->text[ll] = '\0';
     }
     printer.pNoLines += ii;
-    return (meTRUE);
+    return (true);
 }
 
 /*
@@ -1337,7 +1337,7 @@ printSection (meWindow *wp, long sLineNo, long numLines, meLine *sLine, meLine *
     meLine *clp;                          /* Composed page list */
     meLine *ihead = NULL;                 /* Internal destination header */
     meLine *itail = NULL;                 /* Internal destination trailer */
-    int status = meTRUE;                  /* Return status */
+    int status = true;                  /* Return status */
     meUByte fname [meBUF_SIZE_MAX];       /* File name buffer */
     int ii;                               /* Local loop counter. */
 
@@ -1349,10 +1349,10 @@ printSection (meWindow *wp, long sLineNo, long numLines, meLine *sLine, meLine *
         numLines /= 10;
 
     /* Initialise the printer. */
-    if (printInit (meTRUE, nn) <= 0)
+    if (printInit (true, nn) <= 0)
         return meABORT;
     if(nn < 0)
-        return meTRUE ;
+        return true ;
         
     /* Get the clock out and initialise */
     clock = time (0);	                 /* Get system time */
@@ -1373,7 +1373,7 @@ printSection (meWindow *wp, long sLineNo, long numLines, meLine *sLine, meLine *
         if(meStrcmp(wp->buffer->name,printer.param[mePS_BUFFER].p) == 0)
 #endif
             return mlwrite(MWABORT,(meUByte *)"[Cannot print \"%s\" buffer]",printer.param[mePS_BUFFER].p) ;
-        if(((dbp=bfind(printer.param[mePS_BUFFER].p,BFND_CREAT|BFND_CLEAR)) == meFALSE) ||
+        if(((dbp=bfind(printer.param[mePS_BUFFER].p,BFND_CREAT|BFND_CLEAR)) == false) ||
            (((printer.param [mePI_FLAGS].l & PFLAG_SILENT) == 0) &&
             (meWindowPopup(dbp->name,WPOP_USESTR,NULL)) == NULL))
             return mlwrite(MWABORT,(meUByte *)"[Failed to create print buffer]") ;
@@ -1567,7 +1567,7 @@ printSection (meWindow *wp, long sLineNo, long numLines, meLine *sLine, meLine *
              * on unix a " </dev/null" safety arg is added to the cmdLine
              */
             if((status=doShellCommand(cmdLine,0)) > 0)
-                status = (resultStr[0] == '0') ? meTRUE:meFALSE ;
+                status = (resultStr[0] == '0') ? true:false ;
             if(status <= 0)
                 mlwrite(MWABORT,(meUByte *)"[Failed to print file %s]",fname);
             break;
@@ -1597,7 +1597,7 @@ quitEarly:
         fclose (fp);
     /* Kill off the buffer */
     if (bp)
-        zotbuf (bp, meTRUE);
+        zotbuf (bp, true);
     /* Free off internal list */
     while (ihead != NULL)
     {
@@ -1631,7 +1631,7 @@ printRegion (int f, int n)
         return noMarkSet ();
 
     if ((startLineNo=frameCur->windowCur->dotLineNo-frameCur->windowCur->markLineNo) == 0)
-        return meTRUE;
+        return true;
     numLines = abs (startLineNo);
     if (startLineNo < 0)
     {

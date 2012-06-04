@@ -50,7 +50,7 @@ setBufferCryptKey(meBuffer *bp, meUByte *key)
         meStrcpy(keybuf,(bp->fileName != NULL) ? bp->fileName:bp->name) ;
         meStrcat(keybuf," password") ;
         if(meGetString(keybuf,MLNOHIST|MLHIDEVAL,0,keybuf,meSBUF_SIZE_MAX) <= 0)
-            return meFALSE ;
+            return false ;
         key = keybuf ;
         mlerase(MWCLEXEC);		/* clear it off the bottom line */
     }
@@ -67,7 +67,7 @@ setBufferCryptKey(meBuffer *bp, meUByte *key)
         meCrypt(bp->cryptKey, meStrlen(key));
     }
     meBufferAddModeToWindows(bp,WFMODE) ;
-    return meTRUE ;
+    return true ;
 }
 
 int
@@ -204,7 +204,7 @@ meCrypt(register meUByte *bptr, register meUInt len)
     {	/* is there anything here to encrypt? */
         key = len;	/* set the new key */
         salt = len;	/* set the new salt */
-        return(meTRUE);
+        return(true);
     }
     while (len--)
     { 	/* for every character in the buffer */
@@ -325,6 +325,6 @@ meCrypt(register meUByte *bptr, register meUInt len)
 #endif
         *bptr++ = cc;	/* put character back into buffer */
     }
-    return(meTRUE);
+    return(true);
 }
 #endif

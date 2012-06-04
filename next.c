@@ -97,7 +97,7 @@ flNextFind(meUByte *str, meUByte **curFilePtr, meInt *curLine)
         len = mereRegexGroupEnd(fileRpt+1) - mereRegexGroupStart(fileRpt+1) ;
         meNullFree(*curFilePtr) ;
         if((*curFilePtr = meMalloc(len+1)) == NULL)
-            return meFALSE ;
+            return false ;
         meStrncpy(*curFilePtr,frameCur->windowCur->dotLine->text+soff+mereRegexGroupStart(fileRpt+1),len) ;
         (*curFilePtr)[len] = '\0' ;
     }
@@ -106,7 +106,7 @@ flNextFind(meUByte *str, meUByte **curFilePtr, meInt *curLine)
         len = mereRegexGroupEnd(buffRpt+1) - mereRegexGroupStart(buffRpt+1) ;
         meNullFree(*curFilePtr) ;
         if((*curFilePtr = meMalloc(len+3)) == NULL)
-            return meFALSE ;
+            return false ;
         (*curFilePtr)[0] = '*' ;
         meStrncpy((*curFilePtr)+1,frameCur->windowCur->dotLine->text+soff+mereRegexGroupStart(fileRpt+1),len) ;
         (*curFilePtr)[len+1] = '*' ;
@@ -208,7 +208,7 @@ getNextLine(int f,int n)
                     var = SetUsrLclCmdVar((meUByte *)"next-file",value,&(bp->varList)) ;
                     meFree(nextFile) ;
                     if(var == NULL)
-                        return meFALSE ;
+                        return false ;
                     nextFile = var->value ;
                 }
                 else if((nextFile = getUsrLclCmdVar((meUByte *)"next-file",&(bp->varList))) == errorm)
@@ -218,10 +218,10 @@ getNextLine(int f,int n)
                 SetUsrLclCmdVar((meUByte *)"next-line",meItoa(curLine),&(bp->varList)) ;
                 
                 if((n & 0x01) == 0)
-                    return meTRUE ;
+                    return true ;
                     
                 if(meWindowPopup(NULL,WPOP_MKCURR,NULL) == NULL)
-                    return meFALSE ;
+                    return false ;
                 if((nextFile[0] == '*') && (nextFile[ii-1] == '*'))
                 {
                     meBuffer *bp ;
@@ -230,14 +230,14 @@ getNextLine(int f,int n)
                     {
                         mlwrite(MWABORT,(meUByte *)"[Buffer \"%s\" no longer exists]",nextFile+1) ;
                         nextFile[ii-1] = '*' ;
-                        return meFALSE ;
+                        return false ;
                     }
                     nextFile[ii-1] = '*' ;
                     if(swbuffer(frameCur->windowCur,bp) <= 0)
-                        return meFALSE ;
+                        return false ;
                 }
                 else if(findSwapFileList(nextFile,(BFND_CREAT|BFND_MKNAM),0,0) <= 0)
-                    return meFALSE ;
+                    return false ;
                 if(curLine <= 0)
                     return mlwrite(MWABORT,(meUByte *)"[No line number]") ;
                 /* if for some strange reason the file wasn't found, but the directory
@@ -261,7 +261,7 @@ addNextLine(int f, int n)
     int no, cnt ;
     
     if(meGetString((meUByte *)"next name",0,0,name,meBUF_SIZE_MAX) <= 0)
-        return meFALSE ;
+        return false ;
     for(no=0 ; no<noNextLine ; no++)
         if(!meStrcmp(nextName[no],name))
             break ;
@@ -274,11 +274,11 @@ addNextLine(int f, int n)
                 meFree(nextLineStr[no][cnt]) ;
             nextLineCnt[no] = 0 ;
         }
-        return meTRUE ;
+        return true ;
     }
     line[0] = (n < 0) ? '0':'1' ;
     if(meGetString((meUByte *)"next line",0,0,line+1,meBUF_SIZE_MAX) <= 0)
-        return meFALSE ;
+        return false ;
     if(no == noNextLine)
     {
         noNextLine++ ;
@@ -288,7 +288,7 @@ addNextLine(int f, int n)
            ((nextLineStr=meRealloc(nextLineStr,noNextLine*sizeof(meUByte **))) == NULL))
         {
             noNextLine = 0 ;
-            return meFALSE ;
+            return false ;
         }
         nextLineCnt[no] = 0 ;
         nextLineStr[no] = NULL ;
@@ -299,10 +299,10 @@ addNextLine(int f, int n)
        ((nextLineStr[no][cnt]=meStrdup(line)) == NULL))
     {
         nextLineCnt[no] = 0 ;
-        return meFALSE ;
+        return false ;
     }
     nextLineCnt[no]++ ;
-    return meTRUE ;
+    return true ;
 }
 
 #endif
@@ -316,7 +316,7 @@ rcsFilePresent(meUByte *fname)
     register meUByte *fn, *ld, *tn=tname ;
 
     if(rcsFile == NULL)
-        return meFALSE ;
+        return false ;
 
     fn = fname ;
     if((ld = meStrrchr(fname,DIR_CHAR)) != NULL)
@@ -370,7 +370,7 @@ doRcsCommand(meUByte *fname, register meUByte *comStr)
             else
             {
                 if(meGetString((meUByte *)"Enter message",0,0,pat+ii,meBUF_SIZE_MAX-ii) <= 0)
-                    return meFALSE ;
+                    return false ;
                 ii = meStrlen(pat) ;
             }
         }
@@ -404,7 +404,7 @@ rcsCiCoFile(int f, int n)
     {
         if(n < 0)
             /* already read-only, no changes to undo, return */
-            return meTRUE ;
+            return true ;
             
         if(ss <= 0)
         {
@@ -419,7 +419,7 @@ rcsCiCoFile(int f, int n)
 #endif
             meModeClear(frameCur->bufferCur->mode,MDVIEW) ;
             frameCur->windowCur->updateFlags |= WFMODE ;
-            return meTRUE ;
+            return true ;
         }
         if((str = rcsCoUStr) == NULL)
             return mlwrite(MWABORT,(meUByte *)"[rcs cou command not set]") ;
@@ -443,7 +443,7 @@ rcsCiCoFile(int f, int n)
         if(str == NULL)
             return mlwrite(MWABORT,(meUByte *)"[rcs ci or cif command not set]") ;
         if((n >= 0) && meModeTest(frameCur->bufferCur->mode,MDEDIT) &&
-           ((ss=saveBuffer(meTRUE,meTRUE)) <= 0))
+           ((ss=saveBuffer(true,true)) <= 0))
             return ss ;
     }
     lineno = frameCur->windowCur->dotLineNo ;
@@ -453,13 +453,13 @@ rcsCiCoFile(int f, int n)
        (bclear(frameCur->bufferCur) <= 0) ||
        ((frameCur->bufferCur->intFlag |= BIFFILE),(frameCur->bufferCur->dotLineNo = lineno+1),
         (swbuffer(frameCur->windowCur,frameCur->bufferCur) <= 0)))
-        return meFALSE ;
+        return false ;
     if(curcol > meLineGetLength(frameCur->windowCur->dotLine))
         frameCur->windowCur->dotOffset = meLineGetLength(frameCur->windowCur->dotLine) ;
     else
         frameCur->windowCur->dotOffset = curcol ;
 
-    return meTRUE ;
+    return true ;
 }
 
 #endif

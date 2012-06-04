@@ -47,7 +47,7 @@ meFrameEnlargeVideo(meFrame *frame, int rows)
     {
         /* Try and allocate new video frame */
         if ((vs = (meVideoLine *) meMalloc (rows * sizeof (meVideoLine))) == NULL)
-            return (meFALSE);
+            return (false);
 
         /* Allocation successful. Reset the contents to zero and swap
            for the existing one */
@@ -56,7 +56,7 @@ meFrameEnlargeVideo(meFrame *frame, int rows)
         vvptr->lineArray = vs;                        /* Swap in new one */
     }
 
-    return (meTRUE);
+    return (true);
 }
 
 
@@ -71,7 +71,7 @@ meFrameChangeWidth(meFrame *frame, int ww)
     
     /* Already this size ?? Nothing to do */
     if(frame->width == ww)
-        return meTRUE;
+        return true;
     
     meFrameLoopBegin() ;
     
@@ -93,14 +93,14 @@ meFrameChangeWidth(meFrame *frame, int ww)
 
         if(((ml = meLineMalloc(ww,0)) == NULL) ||
            ((mls = meMalloc(ww+1)) == NULL))
-            return meFALSE ;
+            return false ;
             
         /* Fix up the frame store by growing the lines. Do a safe
          * grow where by we can recover if a malloc fails. */
         for (flp = loopFrame->store, ii = 0; ii < loopFrame->depthMax; ii++, flp++)
         {
             if ((fl.scheme = meMalloc(ww*(sizeof(meUByte)+sizeof(meStyle)))) == NULL)
-                return meFALSE ;
+                return false ;
             fl.text = (meUByte *) (fl.scheme+ww) ;
             
             /* Data structures allocated. Copy accross the new screen
@@ -141,7 +141,7 @@ meFrameChangeWidth(meFrame *frame, int ww)
         while(wp != NULL)
         {
             if((ml = meLineMalloc(ww,0)) == NULL)
-                return meFALSE ;
+                return false ;
             memcpy(ml,wp->modeLine,meLINE_SIZE+wp->modeLine->length) ;
             free(wp->modeLine) ;
             wp->modeLine = ml ;
@@ -165,7 +165,7 @@ meFrameChangeWidth(meFrame *frame, int ww)
 #endif
     
     meFrameLoopEnd() ;
-    return meTRUE ;
+    return true ;
 }
 
 
@@ -180,7 +180,7 @@ meFrameChangeDepth(meFrame *frame, int dd)
         
     /* Already this size ?? Nothing to do */
     if((frame->depth+1) == dd)
-        return meTRUE;
+        return true;
     
     meFrameLoopBegin() ;
     
@@ -195,8 +195,8 @@ meFrameChangeDepth(meFrame *frame, int dd)
         meFrameLine *flp;             /* Temporary frame line */
         int ii, jj;                 /* Local loop counter */
         
-        if (meFrameEnlargeVideo(loopFrame,dd) == meFALSE)
-            return meFALSE ;
+        if (meFrameEnlargeVideo(loopFrame,dd) == false)
+            return false ;
             
         /* Grow the Frame store depthwise do this safely so that 
          * we do not cause a crash at the video end. 
@@ -205,7 +205,7 @@ meFrameChangeDepth(meFrame *frame, int dd)
          * copy across the old information. 
          */
         if ((flp = (meFrameLine *) meMalloc (sizeof (meFrameLine) * dd)) == NULL)
-            return meFALSE ;
+            return false ;
         
         memcpy (flp, loopFrame->store, sizeof (meFrameLine) * loopFrame->depthMax);
         meFree (loopFrame->store);        /* Free off old store */
@@ -215,7 +215,7 @@ meFrameChangeDepth(meFrame *frame, int dd)
         for (flp += loopFrame->depthMax, ii = loopFrame->depthMax; ii < dd; ii++, flp++)
         {
             if ((flp->scheme = meMalloc(loopFrame->widthMax*(sizeof(meUByte)+sizeof(meScheme)))) == NULL)
-                return meFALSE ;
+                return false ;
             
             flp->text = (meUByte *) (flp->scheme+loopFrame->widthMax) ;
             /* Initialise the data to something valid */
@@ -256,7 +256,7 @@ meFrameChangeDepth(meFrame *frame, int dd)
     
     meFrameLoopEnd() ;
 
-    return meTRUE ;
+    return true ;
 }
 
 /*
@@ -268,12 +268,12 @@ int
 frameChangeWidth(int f, int n)
 {
     /* if no argument is given then prompt for the new width */
-    if (f == meFALSE)
+    if (f == false)
     {
         meUByte buff[meSBUF_SIZE_MAX] ;
         
         if (meGetString((meUByte *)"New width", 0, 0, buff, meSBUF_SIZE_MAX) <= 0) 
-            return meFALSE ;
+            return false ;
         n = meAtoi(buff) ;
     }
     else
@@ -283,15 +283,15 @@ frameChangeWidth(int f, int n)
     if ((n < 8) || (n > 400))           /* In range ?? */
         return mlwrite(MWABORT,(meUByte *)"Screen width %d out of range", n);
     if (n == frameCur->width)                    /* Already this size ?? */
-        return meTRUE;
+        return true;
     
     if(meFrameChangeWidth(frameCur,n) <= 0)
-        return meFALSE ;
+        return false ;
 
 #ifdef _WINDOW
     meFrameSetWindowSize(frameCur) ;    /* Change the size of the window */
 #endif
-    return(meTRUE);
+    return(true);
 }
 
 /*
@@ -302,12 +302,12 @@ int
 frameChangeDepth(int f, int n)
 {
     /* if no argument is given then prompt for the new depth */
-    if (f == meFALSE)
+    if (f == false)
     {
         meUByte buff[meSBUF_SIZE_MAX] ;
         
         if (meGetString((meUByte *)"New depth", 0, 0, buff, meSBUF_SIZE_MAX) <= 0) 
-            return meFALSE ;
+            return false ;
         n = meAtoi(buff) ;
     }
     else
@@ -316,15 +316,15 @@ frameChangeDepth(int f, int n)
     if ((n < 4) || (n > 400))           /* Argument in range ?? */
         return mlwrite(MWABORT,(meUByte *)"[Screen depth %d out of range]", n);
     if (n == (frameCur->depth+1))
-        return meTRUE;                    /* Already the right size */
+        return true;                    /* Already the right size */
     
     if(meFrameChangeDepth(frameCur,n) <= 0)
-        return meFALSE ;
+        return false ;
     
 #ifdef _WINDOW
     meFrameSetWindowSize(frameCur) ;    /* Change the size of the window */
 #endif
-    return meTRUE ;
+    return true ;
 }
 
 /* initialize a frame, mallocing required video and framestore space.
@@ -443,7 +443,7 @@ meFrameInitWindow(meFrame *frame, meBuffer *buffer)
     if(((wp = meMalloc(sizeof(meWindow))) == NULL) ||
        ((lp = meLineMalloc(frame->widthMax,0)) == NULL) ||
        ((off= meLineMalloc(frame->widthMax,0)) == NULL))
-        return meFALSE ;
+        return false ;
     
     frame->bufferCur   = buffer ;              /* Make this current    */
     frame->windowList  = wp ;
@@ -466,7 +466,7 @@ meFrameInitWindow(meFrame *frame, meBuffer *buffer)
     buffer->windowCount++ ;
     meWindowFixTextSize(wp) ;
     meVideoAttach(&(frame->video), wp) ;
-    return meTRUE ;
+    return true ;
 }
 
 #if MEOPT_FRAME ||  (defined _ME_FREE_ALL_MEMORY)
@@ -539,12 +539,12 @@ meFrameDelete(meFrame *frame, int flags)
      * internal (sibling) replacement frame as if one exists then the window
      * must not be deleted */
     if((flags & 1) && (frame == frameCur))
-        frameNext(meTRUE,1) ;
+        frameNext(true,1) ;
     if((frame == frameCur) ||
        (((flags & 1) == 0) && (frame->mainId == frameCur->mainId)))
     {
         if(flags & 2)
-            frameNext(meTRUE,2) ;
+            frameNext(true,2) ;
         if(frame->mainId == frameCur->mainId)
         {
             /* no replacement could be found! */
@@ -571,7 +571,7 @@ meFrameDelete(meFrame *frame, int flags)
     else
         meFrameFree(frame) ;
     
-    return meTRUE ;
+    return true ;
 }
 
 /*
@@ -602,7 +602,7 @@ meFrameMakeCur(meFrame *frame, int quiet)
             ff->flags |= meFRAME_HIDDEN ;
         }            
         frameCur = frame ;
-        sgarbf = meTRUE ;                      /* Garbage the screen */
+        sgarbf = true ;                      /* Garbage the screen */
         if(frameOld->mlStatus & (MLSTATUS_RESTORE|MLSTATUS_KEEP))
         {
             meUByte mlStatus ;
@@ -683,15 +683,15 @@ frameCreate(int f, int n)
     meFrameMakeCur(frame, 0) ;
     if(menuDepth)
         frameSetupMenuLine(menuDepth) ;
-    sgarbf = meTRUE;                      /* Garbage the screen */
+    sgarbf = true;                      /* Garbage the screen */
     
-    return meTRUE ;
+    return true ;
 }
 
 int
 frameDelete(int f, int n)
 {
-    if(f == meFALSE)
+    if(f == false)
         n = 3 ;
     return meFrameDelete(frameCur,n) ;
 }
@@ -701,7 +701,7 @@ frameNext(int f, int n)
 {
     meFrame *frame=frameCur ;
     
-    if(f == meFALSE)
+    if(f == false)
         n = 2 ;
     
     for(;;)
@@ -711,7 +711,7 @@ frameNext(int f, int n)
         if(frame == frameCur)
         {
             if(f)
-                return meTRUE ;
+                return true ;
             /* failed to find an external, try again */
             f = 1 ;
             n = 1 ;
@@ -723,7 +723,7 @@ frameNext(int f, int n)
             break ;
     }
     meFrameMakeCur(frame, 0) ;
-    return meTRUE ;
+    return true ;
 }
 
 #endif

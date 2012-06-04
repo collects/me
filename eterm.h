@@ -45,7 +45,7 @@
  *        TTshowCur - show the cursor
  *        TTNbell   - Do a noisy beep
  *
- *     The following must be provided if MEOPT_TYPEAH=meTRUE
+ *     The following must be provided if MEOPT_TYPEAH=true
  *
  *        TTahead   - any characters waiting ?
  *
@@ -220,7 +220,7 @@ extern void TCAPschemeReset(void) ;
 #define TTshowCur  TCAPshowCur
 #define TTaddColor TCAPaddColor
 #define TTsetBgcol()
-#define meFrameTermInit(f,s) meTRUE
+#define meFrameTermInit(f,s) true
 #define meFrameTermFree(f,s)
 #define meFrameTermMakeCur(f)
 
@@ -337,7 +337,7 @@ extern int  TTstart(void) ;
 #define TTshowCur()           ((meSystemCfg & meSYSTEM_CONSOLE) ? TCAPshowCur():meFrameXTermShowCursor(frameCur))
 #define TTaddColor(i,r,g,b)   ((meSystemCfg & meSYSTEM_CONSOLE) ? TCAPaddColor(i,r,g,b):XTERMaddColor(i,r,g,b))
 #define TTsetBgcol()          ((meSystemCfg & meSYSTEM_CONSOLE) ? 0:(XTERMsetBgcol(),0))
-#define meFrameTermInit(f,s)  ((meSystemCfg & meSYSTEM_CONSOLE) ? meTRUE:meFrameXTermInit(f,s))
+#define meFrameTermInit(f,s)  ((meSystemCfg & meSYSTEM_CONSOLE) ? true:meFrameXTermInit(f,s))
 #define meFrameTermFree(f,s)  ((meSystemCfg & meSYSTEM_CONSOLE) ? 0:(meFrameXTermFree(f,s),0))
 #define meFrameTermMakeCur(f) ((meSystemCfg & meSYSTEM_CONSOLE) ? 0:(meFrameXTermMakeCur(f),0))
 
@@ -542,7 +542,7 @@ extern int  TTstart(void) ;
 #define TTend()   TTclose()
 extern int  TTopen(void) ;
 extern int  TTclose(void) ;
-#define meFrameTermInit(f,s) meTRUE
+#define meFrameTermInit(f,s) true
 #define meFrameTermFree(f,s)
 #define meFrameTermMakeCur(f)
 
@@ -615,7 +615,7 @@ typedef struct TIMERBLOCK
 
 /*
  * isTimerActive
- * Returns a boolean state (0==meFALSE) depending on if the timer
+ * Returns a boolean state (0==false) depending on if the timer
  * is outstanding or not.
  */
 #define isTimerActive(id)  (meTimerState[id] & (TIMER_SET|TIMER_EXPIRED))

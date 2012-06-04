@@ -194,7 +194,7 @@ delete_key(register meUShort code)
         ktp++ ;
     }
     if(ii < 0)
-        return meFALSE ;
+        return false ;
     keyTableSize-- ;
     /* move all infront back one */
     while(--ii >= 0)
@@ -202,7 +202,7 @@ delete_key(register meUShort code)
         memcpy(ktp,ktp+1,sizeof(meBind)) ;
         ktp++ ;
     }
-    return meTRUE ;
+    return true ;
 }	/* End of "delete_key" () */
 
 /*****************************************************************************
@@ -238,7 +238,7 @@ insert_key (register meUShort code, meUShort index, meUInt arg)
 
     /* Is there room in the table */
     if(keyTableSize >= meBIND_MAX-1)		/* No space in table ?? */
-        return meFALSE ;                          /* No - return error. */
+        return false ;                          /* No - return error. */
 
 /*--- Go backwards down table finding place in table and moving rest back. */
     i = keyTableSize++ ;
@@ -255,7 +255,7 @@ insert_key (register meUShort code, meUShort index, meUInt arg)
     ktp->code  = code ;		/* Add new function code */
     ktp->arg   = arg ;		/* Add new argument */
 
-    return meTRUE ;
+    return true ;
 }	/* End of "insert_key" () */
 
 

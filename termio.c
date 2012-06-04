@@ -768,7 +768,7 @@ translateKey(int f, int n)
         meBuffer *bp ;
     
         if((wp = meWindowPopup(BtranskeyN,BFND_CREAT|BFND_CLEAR|WPOP_USESTR,NULL)) == NULL)
-            return meFALSE ;
+            return false ;
         bp = wp->buffer ;
         
         translateKeyShow(&TTtransKey,bp,buf,0) ;
@@ -786,24 +786,24 @@ translateKey(int f, int n)
         meStrcpy(tnkyPrompt+19,"code") ;
         if((meGetString(tnkyPrompt,0,0,buf,128) <= 0) ||
            ((ii=keyListToShorts(c_from,buf)) <= 0))
-            return meFALSE ;
+            return false ;
 
         if(n == -1)
             c_to[0] = ME_INVALID_KEY ;
         else
         {
-            if(f == meFALSE)
+            if(f == false)
                 n = TTtransKey.time ;
             meStrcpy(tnkyPrompt+19,"to") ;
             if((meGetString(tnkyPrompt,0,0,buf,128) <= 0) ||
                ((f=keyListToShorts(c_to,buf)) < 0))
-                return meFALSE ;
+                return false ;
             if(f == 0)
                 c_to[0] = ME_DELETE_KEY ;
         }
         translateKeyAdd(&TTtransKey,ii,n,c_from,*c_to) ;
     }
-    return meTRUE ;
+    return true ;
 }
 
 meUShort

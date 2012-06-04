@@ -36,7 +36,7 @@ meUByte **mlgsStrList ;
 int    mlgsStrListSize ;
 
 /*
- * Ask a yes or no question in the message line. Return either meTRUE, meFALSE, or
+ * Ask a yes or no question in the message line. Return either true, false, or
  * meABORT. The meABORT status is returned if the user bumps out of the question
  * with a ^G. Used any time a confirmation is required.
  */
@@ -49,7 +49,7 @@ mlCharReply(meUByte *prompt, int mask, meUByte *validList, meUByte *helpStr)
     
     for(;;)
     {
-        if((clexec == meFALSE) || inpType)
+        if((clexec == false) || inpType)
         {
             if((kbdmode != mePLAY) || (kbdoff >= kbdlen))
             {
@@ -57,7 +57,7 @@ mlCharReply(meUByte *prompt, int mask, meUByte *validList, meUByte *helpStr)
                 if(mask & mlCR_QUIT_ON_USER)
                     return -2 ;
                 if(mask & mlCR_UPDATE_ON_USER)
-                    update(meTRUE) ;
+                    update(true) ;
                 
                 if(frameCur->mlStatus & MLSTATUS_POSOSD)
                 {
@@ -76,7 +76,7 @@ mlCharReply(meUByte *prompt, int mask, meUByte *validList, meUByte *helpStr)
                     inpType = 2 ;
                 }
             }
-            cc = meGetKeyFromUser(meFALSE,0,meGETKEY_SILENT|meGETKEY_SINGLE) ;
+            cc = meGetKeyFromUser(false,0,meGETKEY_SILENT|meGETKEY_SINGLE) ;
             frameCur->mlStatus &= ~(MLSTATUS_KEEP|MLSTATUS_RESTORE|MLSTATUS_POSML) ;
             if((cc == breakc) && !(mask & mlCR_QUOTE_CHAR))
                 return -1 ;
@@ -165,10 +165,10 @@ mlyesno(meUByte *prompt)
     ret = mlCharReply(buf,mlCR_LOWER_CASE,(meUByte *)"yn",(meUByte *)"(Y)es, (N)o, (C-g)Abort ? ") ;
     
     if(ret < 0)
-        return ctrlg(meFALSE,1) ;
+        return ctrlg(false,1) ;
     else if(ret == 'n')
-        return meFALSE ;
-    return meTRUE ;
+        return false ;
+    return true ;
 }
 
 /*    tgetc:    Get a key from the terminal driver, resolve any keyboard
@@ -218,7 +218,7 @@ kbd_rep:
         undoContFlag++ ;
 #endif
         /* force a screen update after all is done */
-        update(meFALSE);
+        update(false);
     }
 
     if(kbdmode == meRECORD)
@@ -286,7 +286,7 @@ getprefixchar(int f, int n, int ctlc, int flag)
     if(!(flag & meGETKEY_SILENT))
     {
         buf[meGetStringFromChar((meUShort) ctlc,buf)] = '\0' ;
-        if(f == meTRUE)
+        if(f == true)
             mlwrite(MWCURSOR,(meUByte *)"Arg %d: %s", n, buf);
         else
             mlwrite(MWCURSOR,(meUByte *)"%s", buf);
@@ -320,7 +320,7 @@ meGetKeyFromUser(int f, int n, int flag)
     {
         if(TTbreakTest(0))
         {
-            ctrlg(meFALSE,1) ;
+            ctrlg(false,1) ;
 #if MEOPT_UNDO
             undoContFlag++ ;
 #endif
@@ -386,13 +386,13 @@ mlInsertChar(meUByte cc, meUByte *buf, int *pos, int *len, int max)
      * position pos (which we update), if the length len (which we
      * also update) is less than the maximum length "max".
      *
-     * Return:  meTRUE    if the character will fit
-     *          meFALSE   otherwise
+     * Return:  true    if the character will fit
+     *          false   otherwise
      */
     int ll ;
     ll = meStrlen(buf);
     if(ll + 1 >= max)
-        return meFALSE ;
+        return false ;
     
     if(*pos == ll)
     {
@@ -420,7 +420,7 @@ mlInsertChar(meUByte cc, meUByte *buf, int *pos, int *len, int max)
         *len = ll+1;
         (*pos)++ ;
     }
-    return meTRUE ;
+    return true ;
 }
 
 static int
@@ -570,13 +570,13 @@ isFileIgnored(meUByte *fileName)
                 fil++ ;
             if((fil <= len) &&
                !curCmpIFunc(fileName+len-fil,fi,fil))
-                return meTRUE ;
+                return true ;
             fi += fil ;
             if(*fi++ == '\0')
                 break ;
         }
     }
-    return meFALSE ;
+    return false ;
 }
 #endif
 
@@ -765,7 +765,7 @@ mlHandleMouse(meUByte *inpBuf, int inpBufSz, int compOff)
                     windowScrollDown(1,1) ;
                 else if(ii == (WCVSBDSHAFT-WCVSBSPLIT))
                     windowScrollDown(0,1) ;
-                update(meTRUE) ;
+                update(true) ;
             }
         }
         else
@@ -809,7 +809,7 @@ mlHandleMouse(meUByte *inpBuf, int inpBufSz, int compOff)
                     meStrncpy(inpBuf+compOff,meLineGetText(lp)+ii,jj) ;
                     inpBuf[compOff+jj] = '\0' ;
                 }
-                update(meTRUE) ;
+                update(true) ;
                 return 1 ;
             }
         }
@@ -960,7 +960,7 @@ meGetStringFromUser(meUByte *prompt, int option, int defnum, meUByte *buf, int n
 #endif
 #if MEOPT_EXTENDED
     if((oldCursorState=cursorState) < 0)
-        showCursor(meFALSE,1) ;
+        showCursor(false,1) ;
 #endif
     for(cont_flag=0 ; cont_flag == 0 ;)
     {
@@ -982,7 +982,7 @@ meGetStringFromUser(meUByte *prompt, int option, int defnum, meUByte *buf, int n
         contstr = NULL ;
         mlInputFlags >>= 4 ;
 
-        cc = meGetKeyFromUser(meFALSE,0,meGETKEY_SILENT) ;
+        cc = meGetKeyFromUser(false,0,meGETKEY_SILENT) ;
         idx = decode_key((meUShort) cc,&arg) ;
         if(arg)
         {
@@ -1254,8 +1254,8 @@ input_expand:
                     if(last >= 0)
                         addLineToEob(frameCur->bufferCur,strList[last]) ;
                 } while((frameCur->bufferCur->lineCount == 0) && (--jj >= 0)) ; 
-                windowGotoBob(meFALSE,meFALSE) ;
-                update(meTRUE) ;
+                windowGotoBob(false,false) ;
+                update(true) ;
             }
             break ;
             
@@ -1263,7 +1263,7 @@ input_expand:
             if(mlgsOldCwp != NULL)
             {
                 windowScrollUp(ff,ii) ;
-                update(meTRUE) ;
+                update(true) ;
             }
             break ;
             
@@ -1271,7 +1271,7 @@ input_expand:
             if(mlgsOldCwp != NULL)
             {
                 windowScrollDown(ff,ii) ;
-                update(meTRUE) ;
+                update(true) ;
             }
             break ;
             
@@ -1435,8 +1435,8 @@ input_expand:
             break;
             
         case CK_RECENT:  /* ^L : Redraw the screen */
-            sgarbf = meTRUE;
-            update(meTRUE) ;
+            sgarbf = true;
+            update(true) ;
             mlerase(0);
             break;
             
@@ -1549,7 +1549,7 @@ input_expand:
                 break ;
             }
             while(ii--)
-                if(mlInsertChar((meUByte) cc, buf, &ipos, &ilen, nbuf) == meFALSE)
+                if(mlInsertChar((meUByte) cc, buf, &ipos, &ilen, nbuf) == false)
                     TTbell();
             changed=1 ;
             break;
@@ -1584,7 +1584,7 @@ ml_yank:
                 {
                     pp = killp->data ;
                     while((cy=*pp++))
-                        if(mlInsertChar(cy, buf, &ipos, &ilen, nbuf) == meFALSE)
+                        if(mlInsertChar(cy, buf, &ipos, &ilen, nbuf) == false)
                         {
                             TTbell() ;
                             break ;
@@ -1790,7 +1790,7 @@ input_addexpand:
             /*
              * And insert it ....
              */
-            if(mlInsertChar((meUByte) cc, buf, &ipos, &ilen, nbuf) == meFALSE)
+            if(mlInsertChar((meUByte) cc, buf, &ipos, &ilen, nbuf) == false)
                 TTbell();
             changed=1 ;
             break;
@@ -1844,7 +1844,7 @@ input_addexpand:
         if(mlgsOldWBp == NULL)
         {
             /* was no replacement so the window was split */
-            windowDelete(meFALSE,1) ;
+            windowDelete(false,1) ;
             frameCur->windowCur->vertScroll = mlgsSingWind-1 ;
         }
         else
@@ -1857,12 +1857,12 @@ input_addexpand:
     }
 #if MEOPT_EXTENDED
     if(oldCursorState < 0)
-        showCursor(meTRUE,oldCursorState) ;
+        showCursor(true,oldCursorState) ;
 #endif
     
     if(cont_flag & 0x04)
-        return ctrlg(meFALSE,1);
+        return ctrlg(false,1);
 
-    return meTRUE;
+    return true;
 }
 

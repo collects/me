@@ -52,15 +52,15 @@ static meUByte notFoundStr[] ="[Not Found]";
 static int exactFlag ;                      /* Use to cache EXACT mode state */
 meUByte  srchPat [meBUF_SIZE_MAX] ;         /* Search pattern array */
 meUByte  srchRPat[meBUF_SIZE_MAX] ;         /* Reversed pattern array */
-int      srchLastState=meFALSE ;            /* status of last search */
+int      srchLastState=false ;            /* status of last search */
 meUByte *srchLastMatch=NULL ;               /* pointer to the last match string */
 
 /*
  * boundry -- Return information depending on whether we may search no
  *      further.  Beginning of file and end of file are the obvious
  *      cases, but we may want to add further optional boundry restrictions
- *      in future, a la VMS EDT.  At the moment, just return meTRUE or
- *      meFALSE depending on if a boundry is hit (ouch).
+ *      in future, a la VMS EDT.  At the moment, just return true or
+ *      false depending on if a boundry is hit (ouch).
  */
 #define boundry(curline,curoff,dir)                                          \
 (((dir) == meFORWARD) ?                                                      \
@@ -71,7 +71,7 @@ meUByte *srchLastMatch=NULL ;               /* pointer to the last match string 
 #if MEOPT_MAGIC
 
 int           srchLastMagic = 0 ;              /* last search was a magic        */
-static int    reportErrors = meTRUE ;
+static int    reportErrors = true ;
 
 int      mereNewlBufSz=0 ;
 meUByte *mereNewlBuf=NULL ;
@@ -83,7 +83,7 @@ do {                                                                         \
         if((mereNewlBuf = meRealloc(mereNewlBuf,ll+128)) == NULL)            \
         {                                                                    \
             mereNewlBufSz = 0 ;                                              \
-            return meFALSE ;                                                 \
+            return false ;                                                 \
         }                                                                    \
         mereNewlBufSz = ll+127 ;                                             \
     }                                                                        \
@@ -109,7 +109,7 @@ mere_scanner(int direct, int beg_or_end, int *n, SCANNERPOS *sp)
     register meInt lnno=frameCur->windowCur->dotLineNo, nlnno ;
     register int   ii=frameCur->windowCur->dotOffset, jj, kk, count=*n, flags ;
     
-    srchLastState = meFALSE ;
+    srchLastState = false ;
         
     if(mereRegex.newlNo == 0)
     {
@@ -121,8 +121,8 @@ mere_scanner(int direct, int beg_or_end, int *n, SCANNERPOS *sp)
          */
         if(TTbreakTest(1))
         {
-            ctrlg(meFALSE,1) ;
-            return meFALSE ;
+            ctrlg(false,1) ;
+            return false ;
         }
         flags = (lp == frameCur->bufferCur->baseLine) ? meREGEX_ENDBUFF:0 ;
         if(lnno == 0)
@@ -134,7 +134,7 @@ mere_scanner(int direct, int beg_or_end, int *n, SCANNERPOS *sp)
                (!(mereRegex.flags & meREGEX_MAYENDBUFF) ||
                 !(mereRegex.flags & meREGEX_MAYBEEMPTY) ))
                 /* never match $ or \n on the last line going forwards, only \' */
-                return meFALSE ;
+                return false ;
             kk = jj ;
         }
         else
@@ -155,8 +155,8 @@ mere_scanner(int direct, int beg_or_end, int *n, SCANNERPOS *sp)
                 {
                     if(TTbreakTest(1))
                     {
-                        ctrlg(meFALSE,1) ;
-                        return meFALSE ;
+                        ctrlg(false,1) ;
+                        return false ;
                     }
                     lnno++ ;
                     if((lp=meLineGetNext(lp)) == frameCur->bufferCur->baseLine)
@@ -178,8 +178,8 @@ mere_scanner(int direct, int beg_or_end, int *n, SCANNERPOS *sp)
                 {
                     if(TTbreakTest(1))
                     {
-                        ctrlg(meFALSE,1) ;
-                        return meFALSE ;
+                        ctrlg(false,1) ;
+                        return false ;
                     }
                     lp = meLineGetPrev(lp) ;
                     ii = meLineGetLength(lp) ;
@@ -190,7 +190,7 @@ mere_scanner(int direct, int beg_or_end, int *n, SCANNERPOS *sp)
                 }
             }
             if(!ii)
-                return meFALSE ;
+                return false ;
         }
         ii = mereRegex.group[0].start ;
         kk = mereRegex.group[0].end ;
@@ -216,7 +216,7 @@ mere_scanner(int direct, int beg_or_end, int *n, SCANNERPOS *sp)
             if((offe = ii-1) < 0)
             {
                 if(--lnno < 0)
-                    return meFALSE ;
+                    return false ;
                 lp = meLineGetPrev(lp) ;
                 offe = meLineGetLength(lp) ;
             }
@@ -226,8 +226,8 @@ mere_scanner(int direct, int beg_or_end, int *n, SCANNERPOS *sp)
         {
             if(TTbreakTest(1))
             {
-                ctrlg(meFALSE,1) ;
-                return meFALSE ;
+                ctrlg(false,1) ;
+                return false ;
             }
             flags = (lnno == 0) ? meREGEX_BEGBUFF:0 ;
             ii = noln ;
@@ -289,7 +289,7 @@ mere_scanner(int direct, int beg_or_end, int *n, SCANNERPOS *sp)
         } while(--count != 0) ;
         
         if(!ii)
-            return meFALSE ;
+            return false ;
         
         ii = mereRegex.group[0].start ;
         kk = mereRegex.group[0].end ;
@@ -338,9 +338,9 @@ mere_scanner(int direct, int beg_or_end, int *n, SCANNERPOS *sp)
     mereRegexGroupEnd(0) -= mereRegex.group[0].start ;
     mereRegexGroupStart(0) = 0 ;
     srchLastMatch[mereRegexGroupEnd(0)] = '\0' ;
-    srchLastState = meTRUE ;
+    srchLastState = true ;
     *n = count ;
-    return meTRUE ;
+    return true ;
 }
 
 #endif
@@ -370,7 +370,7 @@ scanner(meUByte *patrn, int direct, int beg_or_end, int *count,
     register int matchoff;              /* position in matching line */
     register meInt curlnno, matchlnno ;
     
-    srchLastState = meFALSE ;
+    srchLastState = false ;
     /* If we are going in reverse, then the 'end' is actually the beginning of
      * the pattern. Toggle it.
      */
@@ -386,7 +386,7 @@ scanner(meUByte *patrn, int direct, int beg_or_end, int *count,
     
     /* Scan each character until we hit the head link record. */
 /*    if (boundry(curline, curoff, direct))*/
-/*        return meFALSE ;*/
+/*        return false ;*/
     
     aa = patrn[0] ;
     for (;;)
@@ -537,15 +537,15 @@ scanner(meUByte *patrn, int direct, int beg_or_end, int *count,
              /* Flag that we have moved and got a region to hilight.*/
             frameCur->windowCur->updateFlags |= WFMOVEL|WFSELHIL ;
             srchLastMatch = srchPat ;
-            srchLastState = meTRUE ;
-            return meTRUE;
+            srchLastState = true ;
+            return true;
             
         }
 fail:   /* continue to search */
         if(TTbreakTest(1))
         {
-            ctrlg(meFALSE,1) ;
-            return meFALSE ;
+            ctrlg(false,1) ;
+            return false ;
         }
         
 /*        if (boundry(curline, curoff, direct))*/
@@ -553,7 +553,7 @@ fail:   /* continue to search */
         /* Quit when we have done our work !! */
     }
     
-    return meFALSE;  /* We could not find a match */
+    return false;  /* We could not find a match */
 }
 
 int
@@ -735,7 +735,7 @@ replaces(int kind, int ff, int nn)
     meLine	*lastline = 0;	/* position of last replace and */
     int	         lastoff;       /* offset (for 'u' query option) */
     meInt        lastlno;       /* line no (for 'u' query option) */
-    int	onemore =meFALSE;		/* only do one more replace */
+    int	onemore =false;		/* only do one more replace */
     int	ilength = 0;		/* Last insert length */
     int	state_mc;		/* State machine */
     
@@ -773,7 +773,7 @@ replaces(int kind, int ff, int nn)
         case SL_GETSEARCH:
             
             if ((status = readpattern
-                 ((kind == meFALSE ? (meUByte *)"Replace":(meUByte *)"Query replace"), 
+                 ((kind == false ? (meUByte *)"Replace":(meUByte *)"Query replace"), 
                   1+lastReplace)) <= 0)
 		return status ;		/* Aborted out - Exit */
             
@@ -785,7 +785,7 @@ replaces(int kind, int ff, int nn)
              * replace on the last line. */
             
             nlflag = (srchPat[slength - 1] == meCHAR_NL);
-            nlrepl = meFALSE;
+            nlrepl = false;
             state_mc = SL_GETREPLACE;	/* Move to next state */
             break;
             
@@ -830,8 +830,8 @@ replaces(int kind, int ff, int nn)
         case  SL_NEXTREPLACE:		/* Next replcaement condition */
             
             if (!((nn < 0 || nn > nummatch) &&
-                  (nlflag == meFALSE || nlrepl == meFALSE) &&
-                  onemore == meFALSE))
+                  (nlflag == false || nlrepl == false) &&
+                  onemore == false))
             {
                 /*---	Exit condition has been met */
                 
@@ -914,7 +914,7 @@ replaces(int kind, int ff, int nn)
             switch (cc)			/* And respond appropriately. */
             {
             case -1:
-                return ctrlg(meFALSE,1);
+                return ctrlg(false,1);
                 
             case 'y':			/* yes, substitute */
             case ' ':
@@ -931,13 +931,13 @@ replaces(int kind, int ff, int nn)
 		break;
 							
             case 'l':			/* last one */
-		onemore = meTRUE;
+		onemore = true;
 		state_mc = SL_SUBSTITUTE;
 		break;
                 
             case 'a':			/* yes/stop asking */
             case '!':
-		kind = meFALSE;
+		kind = false;
 		state_mc = SL_SUBSTITUTE;
 		break;
 
@@ -1030,7 +1030,7 @@ replaces(int kind, int ff, int nn)
 		if ((dpat = meMalloc (dpatlen)) == NULL)
                 {
                     dpatlen = 0 ;
-                    return meFALSE ;
+                    return false ;
                 }
             }
             if(mldelete(slength,dpat) != 0)
@@ -1162,7 +1162,7 @@ replaces(int kind, int ff, int nn)
 int
 replaceStr(int f, int n)
 {
-    return replaces(meFALSE, f, n) ;
+    return replaces(false, f, n) ;
 }
 
 /*
@@ -1171,7 +1171,7 @@ replaceStr(int f, int n)
 int	
 queryReplaceStr(int f, int n)
 {
-    return replaces(meTRUE, f, n) ;
+    return replaces(true, f, n) ;
 }
 
 /*
@@ -1197,7 +1197,7 @@ searchForw(int f, int n)
     }
     
     /* Ask the user for the text of a pattern.  If the
-     * response is meTRUE (responses other than meFALSE are
+     * response is true (responses other than false are
      * possible), search for the pattern.
      */
     if ((status = readpattern((meUByte *)"Search", 1+lastReplace)) > 0)
@@ -1215,7 +1215,7 @@ searchForw(int f, int n)
         
         /* ...and complain if not there.
          */
-        if(status == meFALSE)
+        if(status == false)
             notFound();
     }
     return(status);
@@ -1244,7 +1244,7 @@ searchBack(int f, int n)
     }
     
     /* Ask the user for the text of a pattern.  If the
-     * response is meTRUE (responses other than meFALSE are
+     * response is true (responses other than false are
      * possible), search for the pattern.
      */
     if ((status = readpattern((meUByte *)"Reverse search", 1+lastReplace)) > 0)
@@ -1262,7 +1262,7 @@ searchBack(int f, int n)
         
         /* ...and complain if not there.
          */
-        if(status == meFALSE)
+        if(status == false)
             notFound();
     }
     return(status);
@@ -1326,7 +1326,7 @@ huntForw(int f, int n)
     } while ((--repCount > 0) && status);
     
     /* ...and complain if not there. */
-    if(status == meFALSE)
+    if(status == false)
         notFound() ;
     
     return(status);
@@ -1388,7 +1388,7 @@ huntBack(int f, int n)
     } while ((--repCount > 0) && status);
     
     /* ...and complain if not there. */
-    if(status == meFALSE)
+    if(status == false)
         notFound();
     return(status);
 }
@@ -1419,10 +1419,10 @@ iscanner(meUByte *apat, int n, int flags, SCANNERPOS *sp)
         int status ;
         
         if (flags & ISCANNER_QUIET)
-            reportErrors = meFALSE;
+            reportErrors = false;
         status = mere_compile_pattern(apat);
         if (flags & ISCANNER_QUIET)
-            reportErrors = meTRUE;        
+            reportErrors = true;        
         /*
          * Bail out here if we have a false status, we cannot construct a valid
          * search string yet it is not compleate.

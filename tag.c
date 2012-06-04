@@ -173,7 +173,7 @@ findTagSearch(meUByte *key, meUByte *file, meUByte *patt)
                 else
                     tagLastPos = -1 ;
             }
-            return meTRUE ;
+            return true ;
         }
         if(ii == 1)
         {
@@ -233,7 +233,7 @@ findTagSearchNext(meUByte *key, meUByte *file, meUByte *patt)
         /* no more found */
         return mlwrite(MWABORT,(meUByte *)"[No more \"%s\" tags]",key) ;
     tagLastPos = pos ;
-    return meTRUE ;
+    return true ;
 }
 
 static int
@@ -247,13 +247,13 @@ findTagExec(int nn, meUByte tag[])
     if(nn & 0x04)
     {
         if(findTagSearchNext(tag, file, fpatt) <= 0)
-            return meFALSE ;
+            return false ;
     }
     else if(findTagSearch(tag, file, fpatt) <= 0)
-        return meFALSE ;
+        return false ;
     
     if((nn & 0x01) && (meWindowPopup(NULL,WPOP_MKCURR,NULL) == NULL))
-        return meFALSE ;
+        return false ;
     if(findSwapFileList(file,(BFND_CREAT|BFND_MKNAM),0,0) <= 0)
         return mlwrite(MWABORT,(meUByte *)"[Can't find %s]", file);
     
@@ -267,12 +267,12 @@ findTagExec(int nn, meUByte tag[])
         if(ee == '?')
         {
             flags = ISCANNER_BACKW|ISCANNER_PTBEG|ISCANNER_MAGIC|ISCANNER_EXACT ;
-            windowGotoEob(meTRUE, 0);
+            windowGotoEob(true, 0);
         }            
         else
         {
             flags = ISCANNER_PTBEG|ISCANNER_MAGIC|ISCANNER_EXACT ;
-            windowGotoBob(meTRUE, 0);
+            windowGotoBob(true, 0);
             if(ee != '/')
             {
                 ee = '\0' ;
@@ -323,9 +323,9 @@ findTagExec(int nn, meUByte tag[])
     }
     
     if(iscanner(mpatt,0,flags,NULL) > 0)
-        return meTRUE ;
+        return true ;
     
-    windowGotoBob(meTRUE,0) ;
+    windowGotoBob(true,0) ;
     iscanner(tag,0,ISCANNER_PTBEG|ISCANNER_EXACT,NULL) ;
     return mlwrite(MWABORT,(meUByte *)"[Can't find %s]",fpatt) ;
 }
@@ -341,11 +341,11 @@ findTag(int f, int n)
     /* Determine if we are in a word. If not then get a word from the user. */
     if(n & 0x04)
         ;
-    else if((n & 0x02) || (inWord() == meFALSE))
+    else if((n & 0x02) || (inWord() == false))
     {
 	/*---	Get user word. */
         if((meGetString((meUByte *)"Enter Tag", MLNOSPACE, 0, tag,meBUF_SIZE_MAX) <= 0) || (tag[0] == '\0'))
-            return ctrlg(meFALSE,1) ;
+            return ctrlg(false,1) ;
     }
     else
     {
@@ -361,7 +361,7 @@ findTag(int f, int n)
         len = 0;
         do
             tag[len++] = ss[offs++] ;
-        while((len < meBUF_SIZE_MAX-1) && isWord(ss[offs]) != meFALSE) ;
+        while((len < meBUF_SIZE_MAX-1) && isWord(ss[offs]) != false) ;
         tag[len] = 0 ;
     }
     

@@ -649,7 +649,7 @@ menuExecute(osdITEM *mp, int flags, int n)
             }
             osdCurChild->context[osdCurChild->nbpContext].menu->argc = mp->argc ;
         }
-        return meTRUE ;
+        return true ;
     }
 
     /* Make sure that there is something to do */
@@ -3748,13 +3748,13 @@ osdDisplayMouseMove(osdDISPLAY *md)
     
     osdCursorState = cursorState ;
     if(cursorState >= 0)
-        showCursor(meTRUE,-1-cursorState) ;
+        showCursor(true,-1-cursorState) ;
     
     /* Enable all mouse movements - important if we've come from meGetStringFromUser */
     TTallKeys = 1 ;
     mmx = mouse_X ;
     mmy = mouse_Y ;
-    for( ; (cc=meGetKeyFromUser(meFALSE,0,meGETKEY_SILENT)) != (ME_SPECIAL|SKEY_mouse_drop_1) ; )
+    for( ; (cc=meGetKeyFromUser(false,0,meGETKEY_SILENT)) != (ME_SPECIAL|SKEY_mouse_drop_1) ; )
     {
         if(cc == (ME_SPECIAL|SKEY_mouse_move_1))
         {
@@ -3769,7 +3769,7 @@ osdDisplayMouseMove(osdDISPLAY *md)
     }
     /* Restore state */
     if(osdCursorState != cursorState)
-        showCursor(meTRUE,osdCursorState-cursorState) ;
+        showCursor(true,osdCursorState-cursorState) ;
     TTallKeys = oldAllKeys ;
 }
 
@@ -3784,7 +3784,7 @@ osdDisplayMouseResize(void)
     TTallKeys = 1 ;
     mmx = mouse_X ;
     mmy = mouse_Y ;
-    for( ; (cc=meGetKeyFromUser(meFALSE,0,meGETKEY_SILENT)) != (ME_SPECIAL|SKEY_mouse_drop_1);)
+    for( ; (cc=meGetKeyFromUser(false,0,meGETKEY_SILENT)) != (ME_SPECIAL|SKEY_mouse_drop_1);)
     {
         if(cc == (ME_SPECIAL|SKEY_mouse_move_1))
         {
@@ -3851,7 +3851,7 @@ scrollScrollBarEvent(meSCROLLBAR *sb, int dd)
                 meScrollBarDrawBar(sb) ;
             meScrollBarDrawMain(sb) ;
         }
-        while((cc = meGetKeyFromUser(meFALSE,0,meGETKEY_SILENT)) != (ME_SPECIAL|SKEY_mouse_time_1))
+        while((cc = meGetKeyFromUser(false,0,meGETKEY_SILENT)) != (ME_SPECIAL|SKEY_mouse_time_1))
         {
             if(cc == (ME_SPECIAL|SKEY_mouse_drop_1))
             {
@@ -3921,7 +3921,7 @@ boxDragScrollBarEvent(meSCROLLBAR *sb)
                 meScrollBarDrawBar(sb) ;
             meScrollBarDrawMain(sb) ;
         }
-        while((cc = meGetKeyFromUser(meFALSE,0,meGETKEY_SILENT)) != (ME_SPECIAL|SKEY_mouse_move_1))
+        while((cc = meGetKeyFromUser(false,0,meGETKEY_SILENT)) != (ME_SPECIAL|SKEY_mouse_move_1))
         {
             if(cc == (ME_SPECIAL|SKEY_mouse_drop_1))
             {
@@ -4662,7 +4662,7 @@ osdDisplayRedraw(void)
          */
         if((tmd = menuConfigure(tmd->dialog,tmd,0)) == NULL)
         {
-            sgarbf = meTRUE ;
+            sgarbf = true ;
             return -1 ;
         }
         /* Position the menu */
@@ -4706,12 +4706,12 @@ menuInteraction (int *retState)
     int state ;
     osdITEM *mp ;
 
-    *retState = meFALSE ;
+    *retState = false ;
     
     /* Hide the cursor */
     osdCursorState = cursorState ;
     if(!(meSystemCfg & meSYSTEM_OSDCURSOR))
-        showCursor(meTRUE,-1-cursorState) ;
+        showCursor(true,-1-cursorState) ;
     
     for(;;)
     {
@@ -4768,14 +4768,14 @@ menuInteraction (int *retState)
             else
                 ii = -1 ;
             if(ii != cursorState)
-                showCursor(meTRUE,ii-cursorState) ;
+                showCursor(true,ii-cursorState) ;
         }
         TTflush() ;
         osdCol = -1 ;
         nit = 0 ;
         state = 0 ;
         
-        cc = meGetKeyFromUser(meFALSE,0,meGETKEY_SILENT);
+        cc = meGetKeyFromUser(false,0,meGETKEY_SILENT);
         
         /* handle and osd bindings first */
         if(osdCurMd->dialog->nobinds)
@@ -5101,8 +5101,8 @@ execute_item:
                 break ;
                       
             case CK_RECENT:                 /* ^L  - Redraw the screen */
-                sgarbf = meTRUE;
-                update(meTRUE) ;
+                sgarbf = true;
+                update(true) ;
                 break;
             default:
                 if(cc == ' ')
@@ -5232,7 +5232,7 @@ execute_item:
             if(osdNewChild == NULL)
             {
                 /* This must have been an entry with no non-exit - quit but flag as success */
-                *retState = meTRUE ;
+                *retState = true ;
                 break ;
             }
             /* Do we have to redraw this display? */
@@ -5271,7 +5271,7 @@ execute_item:
         
     /* Restore the context */
     if(osdCursorState != cursorState)
-        showCursor(meTRUE,osdCursorState-cursorState) ;
+        showCursor(true,osdCursorState-cursorState) ;
     TTflush() ;
     if (state & meOSD_EXECUTE_MENU)
         return mp ;
@@ -5295,7 +5295,7 @@ osd (int f, int n)
 
     /* If no arguments are defined then a menu is being
      * defined. */
-    if((f == meFALSE) || (n < 0))
+    if((f == false) || (n < 0))
     {
         osdDIALOG *rp;                  /* Pointer to container root */
         meUByte txtbuf [meBUF_SIZE_MAX];          /* Text string buffer */
@@ -5323,7 +5323,7 @@ osd (int f, int n)
                 noDis = 0 ;
                 goto do_control_inter ;
             }
-            return meTRUE ;
+            return true ;
         }
         /* Get the menu identity */
         if(((ii=meGetString((meUByte *)"Identity", 0, 0, buf, 16)) <= 0) || (buf[0] == '\0') || (buf[0] == 'E'))
@@ -5361,7 +5361,7 @@ osd (int f, int n)
             }
             else if(osdMainMenuId < 0)
                 /* Main menu Id has not been defined */
-                return meFALSE ;
+                return false ;
             else
             {
                 /* Allocate the menu window space for the menu line */
@@ -5369,7 +5369,7 @@ osd (int f, int n)
                 /* Flag the line as changed */
                 frameCur->video.lineArray[0].flag |= VFCHNGD ;
             }
-            return meTRUE ;              /* Finished */
+            return true ;              /* Finished */
         }
                 
         if(id > 32767)
@@ -5379,7 +5379,7 @@ osd (int f, int n)
         if(n < 0)
         {
             dialogDestruct (id);          /* Destruct the root */
-            return meTRUE ;
+            return true ;
         }
         
         /* Get the menu index */
@@ -5498,7 +5498,7 @@ osd (int f, int n)
                 osdMainMenuId = id ;
             /* finished the root definition */
             dialogResetDisplays(rp,0) ;
-            return meTRUE;
+            return true;
         }
         
         if ((rp = dialogFind (id)) == NULL)
@@ -5563,7 +5563,7 @@ osd (int f, int n)
             /* Get the string field - not needed if deleting a non alpha item */
             if ((ii = meGetString((meUByte *)"Text", MLFFZERO|MLEXECNOUSER, 0, txtbuf, meBUF_SIZE_MAX)) == meABORT)
                 return meABORT ;
-            else if (ii == meFALSE)
+            else if (ii == false)
             {
                 if (rp->flags & RF_ALPHA)
                     return mlwrite(MWABORT,(meUByte *)"[Cannot have item with no text in an Alpha dialog]") ;
@@ -5697,7 +5697,7 @@ osd (int f, int n)
             return mlwrite(MWABORT|MWPAUSE,(meUByte *)"[Entry size is too small]");
         }
 
-        return meTRUE ;
+        return true ;
     }
 
     noDis = 0 ;
@@ -5734,7 +5734,7 @@ do_control_inter:
      *     not get the argument of the user and fail if this flag was set.
      */
     oldClexec = clexec ;
-    clexec = meFALSE ;
+    clexec = false ;
     md = (pmd != NULL) ? pmd->next:osdDisplayHd ;
     if(!(md->flags & RF_NOPOP) &&
        (md->dialog->cntIndex >= 0))

@@ -68,8 +68,10 @@
 
 /* Status defines */
 #define meABORT  -1                             /* Death, ^G, abort, etc.       */
-#define meFALSE   0                             /* False, no, bad, etc.         */
-#define meTRUE    1                             /* True, yes, good, etc.        */
+enum {
+  false = 0,                          /* False, no, bad, etc.         */
+  true = 1,                           /* True, yes, good, etc.        */
+};
 
 /* Keyboard states */
 #define meSTOP    0                             /* keyboard macro not in use    */

@@ -312,7 +312,7 @@ int
 meGetString(meUByte *prompt, int option, int defnum, meUByte *buffer, int size)
 {
     /* if we are not interactive, go get it! */
-    if(clexec == meTRUE)
+    if(clexec == true)
     {
         meUByte buff[meTOKENBUF_SIZE_MAX], *res, *ss, cc ;
         
@@ -334,7 +334,7 @@ meGetString(meUByte *prompt, int option, int defnum, meUByte *buffer, int size)
                 return meABORT ;
             meStrncpy(buffer,resultStr,size-1) ;
             buffer[size-1] = '\0' ;
-            return meTRUE ;
+            return true ;
         }
         else if((buff[0] != '@') || (buff[1] != 'm') || (buff[2] != 'n'))
         {
@@ -366,12 +366,12 @@ meGetString(meUByte *prompt, int option, int defnum, meUByte *buffer, int size)
                     }
                 }
                 *ss = '\0' ;
-                return meTRUE ;
+                return true ;
             }
             if(((buff[0] != '\0') && (buff[0] != ';')) || (option & MLEXECNOUSER))
             {
                 *buffer = '\0' ;
-                return meFALSE ;
+                return false ;
             }
         }
         /* if @mna (get all input from user) then rewind the execstr */
@@ -381,7 +381,7 @@ meGetString(meUByte *prompt, int option, int defnum, meUByte *buffer, int size)
     if(prompt == NULL)
     {
         *buffer = '\0' ;
-        return ctrlg(meFALSE,1) ;
+        return ctrlg(false,1) ;
     }
     return meGetStringFromUser(prompt, option, defnum, buffer, size) ;
 }
@@ -393,7 +393,7 @@ macarg(meUByte *tok)               /* get a macro line argument */
     int status;
     
     savcle = clexec;            /* save execution mode */
-    clexec = meTRUE;              /* get the argument */
+    clexec = true;              /* get the argument */
     status = meGetString(NULL,MLNOHIST|MLFFZERO,0,tok,meBUF_SIZE_MAX) ;
     clexec = savcle;            /* restore execution mode */
     
@@ -471,13 +471,13 @@ domstore(meUByte *cline)
             helpBufferReset(lpStoreBp) ;
             mcStore = 0 ;
             lpStore = NULL;
-            return meTRUE ;
+            return true ;
         }
 #endif
         if(addLine(lpStore,cline) <= 0)
-            return meFALSE ;
+            return false ;
         lpStoreBp->lineCount++ ;
-        return meTRUE ;
+        return true ;
     }
     cc = *cline ;
     /* eat leading spaces */
@@ -486,14 +486,14 @@ domstore(meUByte *cline)
     
     /* dump comments and empties here */
     if((cc == ';') || (cc == '\0'))
-        return meTRUE ;
+        return true ;
     /* check to see if this line turns macro storage off */
     if((cc == '!') && !meStrncmp(cline+1, "ema", 3) && !execlevel--)
     {
-        mcStore = meFALSE;
+        mcStore = false;
         lpStore = NULL;
         execlevel = 0 ;
-        return meTRUE ;
+        return true ;
     }
     else
     {
@@ -554,9 +554,9 @@ docmd(meUByte *cline, register meUByte *tkn)
     
     /* dump comments, empties and labels here */
     if((cc == ';') || (cc == '\0') || (cc == '*'))
-        return meTRUE ;
+        return true ;
     
-    nmacro = meFALSE;
+    nmacro = false;
     execstr = cline;    /* and set this one as current */
     meRegCurr->force = 0 ;
     
@@ -692,7 +692,7 @@ elif_jump:
             if(dirType & DRFLAG_TEST)
             {
                 if(macarg(tkn) <= 0)
-                    return meFALSE ;
+                    return false ;
                 if(!meAtol(tkn))
                 {
                     /* if DRTGOTO or DRTJUMP and the test failed, we dont
@@ -710,13 +710,13 @@ elif_jump:
                 if(meGetString(NULL,MLNOHIST|MLFFZERO|MLEXECNOUSER,0,tkn,meBUF_SIZE_MAX) <= 0)
                 {
                     if(!(dirType & DRFLAG_OPTARG))
-                        return meFALSE ;
-                    f = meFALSE;
+                        return false ;
+                    f = false;
                     n = 1 ;
                 }
                 else if(dirType & DRFLAG_NARG)
                 {
-                    f = meTRUE;
+                    f = true;
                     n = meAtoi(tkn) ;
                     if(dirType & DRFLAG_JUMP)
                         relJumpTo = n ;
@@ -740,19 +740,19 @@ elif_jump:
                 (meRegCurr->force)++ ;
                 goto try_again;
             case DRNMACRO:
-                nmacro = meTRUE;
+                nmacro = true;
                 goto try_again;
             case DRABORT:
                 if(f)
                     TTdoBell(n) ;
-                return meFALSE ;
+                return false ;
             case DRBELL:
                 TTdoBell(n) ;
-                return meTRUE ;
+                return true ;
             case DRRETURN:
                 /* Stop the debugger kicking in on a !return, a macro doing !return 0 is okay */
                 meRegCurr->force = 1 ;
-                return (n) ? DRRETURN:meFALSE ;
+                return (n) ? DRRETURN:false ;
             }
         }
         
@@ -773,14 +773,14 @@ elif_jump:
         else if(dirType & DRFLAG_AMSKEXECLVL)
             execlevel += 2 ;
         
-        return meTRUE ;
+        return true ;
     }
     /* if not a directive and execlevel > 0 ignore it */
     if(execlevel)
-        return meTRUE ;
+        return true ;
     
     /* first set up the default command values */
-    f = meFALSE;
+    f = false;
     n = 1;
     
     if(status != TKCMD)
@@ -788,30 +788,30 @@ elif_jump:
         meUByte *tmp ;
         
         if((tmp = getval(tkn)) == abortm)
-            return meFALSE ;
+            return false ;
         n = meAtoi(tmp) ;
-        f = meTRUE;
+        f = true;
         
         execstr = token(execstr, tkn);
         if(getMacroTypeS(tkn) != TKCMD)
-            return meFALSE ;
+            return false ;
     }
     
     {
         register int idx ; /* index to function to execute */
         
         if(execlevel)
-            return meTRUE ;
+            return true ;
         
         /* and match the token to see if it exists */
         if ((idx = decode_fncname(tkn,0)) < 0)
-            return meFALSE ;
+            return false ;
         if(nmacro)
-            clexec = meFALSE ;
+            clexec = false ;
         cmdstatus = (execFunc(idx,f,n) > 0) ;       /* call the function */
-        clexec = meTRUE ;
+        clexec = true ;
         if(cmdstatus)
-            status = meTRUE ;
+            status = true ;
         else if(TTbreakFlag)
         {
             if(meRegCurr->force > 1)
@@ -821,15 +821,15 @@ elif_jump:
                  */
                 TTinflush() ;
                 TTbreakFlag = 0 ;
-                status = meTRUE ;
+                status = true ;
             }
             else
-                status = meFALSE ;
+                status = false ;
         }
         else if(meRegCurr->force)
-            status = meTRUE ;
+            status = true ;
         else
-            status = meFALSE ;
+            status = false ;
         return status ;
     }
 }
@@ -873,7 +873,7 @@ dobuf(meLine *hlp)
     meLine *wlp;                  /* line to while */
     meLine *rlp;                  /* line to repeat */
     
-    clexec = meTRUE;                      /* in cline execution */
+    clexec = true;                      /* in cline execution */
     execstr = NULL ;
     execlevel = 0;                      /* Reset execution level */
     
@@ -885,7 +885,7 @@ dobuf(meLine *hlp)
     {
         tline = lp->text;
 #if MEOPT_DEBUGM
-        /* if $debug == meTRUE, every line to execute
+        /* if $debug == true, every line to execute
            gets echoed and a key needs to be pressed to continue
            ^G will abort the command */
         
@@ -914,14 +914,14 @@ loop_round2:
              * we will end up in an infinite loop, the best we can do is
              * call the screenUpdate function
              */
-            screenUpdate(meTRUE,2-sgarbf) ;
+            screenUpdate(true,2-sgarbf) ;
             /* reset garbled status */
-            sgarbf = meFALSE ;
+            sgarbf = false ;
             if((dd & 0x08) == 0)
             {
 loop_round:
                 /* and get the keystroke */
-                if(((cc = meGetKeyFromUser(meFALSE,0,meGETKEY_SILENT|meGETKEY_SINGLE)) & 0xff00) == 0)
+                if(((cc = meGetKeyFromUser(false,0,meGETKEY_SILENT|meGETKEY_SINGLE)) & 0xff00) == 0)
                     cc = toLower(cc) ;
                 switch(cc)
                 {
@@ -935,9 +935,9 @@ loop_round:
                         meUByte mlStatusStore ;
                         mlStatusStore = frameCur->mlStatus ;
                         frameCur->mlStatus = 0 ;
-                        clexec = meFALSE ;
-                        descVariable(meFALSE,1) ;
-                        clexec = meTRUE ;
+                        clexec = false ;
+                        descVariable(false,1) ;
+                        clexec = true ;
                         frameCur->mlStatus = mlStatusStore ;
                         goto loop_round ;
                     }
@@ -946,7 +946,7 @@ loop_round:
                     {
                         /* Abort - Must exit the usual way so that macro
                          * storing and execlevel are corrected */
-                        ctrlg(meFALSE,1) ;
+                        ctrlg(false,1) ;
                         status = meABORT ;
                         errorLine = lp ;
                         macbug = dd ;
@@ -964,10 +964,10 @@ loop_round:
 #endif
         if(TTbreakTest(0))
         {
-            mcStore = meFALSE;
+            mcStore = false;
             lpStore = NULL;
             execlevel = 0 ;
-            status = ctrlg(meFALSE,1) ;
+            status = ctrlg(false,1) ;
         }
         else
         {
@@ -987,8 +987,8 @@ loop_round:
             switch(status)
             {
             case meABORT:
-            case meFALSE:
-            case meTRUE:
+            case false:
+            case true:
                 break ;
                 
             case DRGOTO:
@@ -1006,7 +1006,7 @@ loop_round:
                             isSpace(glp->text[linlen+1]))
                         {
                             lp = glp;
-                            status = meTRUE;
+                            status = true;
                             break ;
                         }
                         glp = glp->next;
@@ -1020,25 +1020,25 @@ loop_round:
                 if (rlp == NULL)
                 {
                     rlp = lp;               /* Save line */
-                    status = meTRUE;
+                    status = true;
                 }
                 else
                     status = mlwrite(MWABORT|MWWAIT,(meUByte *)"Nested Repeat");
                 break;
-            case DRUNTIL:                       /* meTRUE UNTIL */
+            case DRUNTIL:                       /* true UNTIL */
                 if (rlp != NULL)
                 {
                     rlp = NULL;
-                    status = meTRUE;
+                    status = true;
                 }
                 else
                     status = mlwrite(MWABORT|MWWAIT,(meUByte *)"No repeat set");
                 break;  
-            case DRUNTILF:                      /* meFALSE UNTIL */
+            case DRUNTILF:                      /* false UNTIL */
                 if (rlp != NULL)
                 {
                     lp = rlp;               /* Back to 'repeat' */
-                    status = meTRUE;
+                    status = true;
                 }
                 else
                     status = mlwrite(MWABORT|MWWAIT,(meUByte *)"No repeat set");
@@ -1064,7 +1064,7 @@ loop_round:
                 
             case DRWHILE:                       
                 wlp = lp;
-                status = meTRUE;
+                status = true;
                 break;
                 
             case DRJUMP:
@@ -1078,10 +1078,10 @@ loop_round:
                 continue;
                 
             case DRRETURN:      /* if it is a !RETURN directive...do so */
-                status = meTRUE ;
+                status = true ;
                 goto dobuf_exit ;
             default:
-                status = meTRUE ;
+                status = true ;
                 
             }
         }
@@ -1123,7 +1123,7 @@ loop_round:
     if(mcStore)
         mlwrite(MWABORT|MWWAIT,(meUByte *)"[Missing !emacro termination]");
     else
-        status = meTRUE ;
+        status = true ;
     
     /* exit the current function */
 dobuf_exit:
@@ -1134,7 +1134,7 @@ dobuf_exit:
         lpStore = NULL ;
         execlevel = 0 ;
         errorLine = hlp;
-        status = meFALSE ;
+        status = false ;
     }
     
     return status ;
@@ -1592,7 +1592,7 @@ executeNamedCommand(int f, int n)
     meUByte prm[30] ;
     
     /* setup prompt */
-    if(f == meTRUE)
+    if(f == true)
         sprintf((char *)prm,"Arg %d: Command",n) ;
     else
         meStrcpy(prm,"Command") ;
@@ -1603,7 +1603,7 @@ executeNamedCommand(int f, int n)
     
     /* decode the function name, if -ve then duff */
     if((idx = decode_fncname(buf,0)) < 0)
-        return(meFALSE);
+        return(false);
     
     /* and then execute the command */
     return execFunc(idx,f,n) ;
@@ -1633,7 +1633,7 @@ lineExec (int f, int n, meUByte *cmdstr)
     if((prevForce=meRegCurr->prev->force) < oldForce)
         meRegCurr->prev->force = oldForce ;
     
-    clexec = meTRUE;                      /* in cline execution */
+    clexec = true;                      /* in cline execution */
     execstr = NULL ;
     execlevel = 0;                      /* Reset execution level */
     meRegCurr->f = f ;

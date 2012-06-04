@@ -96,7 +96,7 @@ set_timestamp(meBuffer *bp)
     
     if(!meModeTest(bp->mode,MDTIME) ||	/* Time stamping mode on ?? */
        (time_stamp[0] == '\0'))			/* No time stamp defined */
-        return meTRUE ;				/* No - exit */
+        return true ;				/* No - exit */
     
     mlwrite(MWCURSOR,(meUByte *)"[Time stamping file]");
     
@@ -116,7 +116,7 @@ set_timestamp(meBuffer *bp)
     createTimeStampSrch(patt,pos) ;
     
     /*---	Search for the time stamp string. */
-    if(iscanner(patt,100,ISCANNER_PTBEG|ISCANNER_MAGIC|ISCANNER_EXACT,NULL) == meTRUE)
+    if(iscanner(patt,100,ISCANNER_PTBEG|ISCANNER_MAGIC|ISCANNER_EXACT,NULL) == true)
     {
         int values[TSNUMFIELD] ;
         struct tm  *time_ptr;		/* Pointer to time frame. */
@@ -157,7 +157,7 @@ set_timestamp(meBuffer *bp)
         /* if found flag any window displaying it to update */
         meBufferAddModeToWindows(bp,WFMAIN) ;
 
-    return meTRUE ;
+    return true ;
 }
 
 #endif  /* MEOPT_TIMSTMP */

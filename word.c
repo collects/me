@@ -86,19 +86,19 @@ backWord(int f, int n)
 {
     if(n < 0)
         return forwWord(f,-n) ;
-    if(meWindowBackwardChar(frameCur->windowCur, 1) == meFALSE)
+    if(meWindowBackwardChar(frameCur->windowCur, 1) == false)
         return meErrorBob() ;
     while (n--)
     {
-        while(inWord() == meFALSE)
-            if(meWindowBackwardChar(frameCur->windowCur, 1) == meFALSE)
+        while(inWord() == false)
+            if(meWindowBackwardChar(frameCur->windowCur, 1) == false)
                 return meErrorBob() ;
-        while(inWord() != meFALSE)
-            if(meWindowBackwardChar(frameCur->windowCur, 1) == meFALSE)
+        while(inWord() != false)
+            if(meWindowBackwardChar(frameCur->windowCur, 1) == false)
                 /* We can't move back any more cos we're at the start,
                  * BUT as we have moved and we are in the buffers first word, 
                  * we should succeed */
-                return meTRUE ;
+                return true ;
     }
     return meWindowForwardChar(frameCur->windowCur,1) ;
 }
@@ -116,13 +116,13 @@ forwWord(int f, int n)
     {
         while(!inWord())
         {
-            if(meWindowForwardChar(frameCur->windowCur, 1) == meFALSE)
+            if(meWindowForwardChar(frameCur->windowCur, 1) == false)
                 return meErrorEob() ;
         }
         while(inWord())
             meWindowForwardChar(frameCur->windowCur,1) ;
     }
-    return meTRUE ;
+    return true ;
 }
 
 /*
@@ -136,17 +136,17 @@ upperWord(int f, int n)
     register int    c;
     
     if (n < 0)
-        return (meFALSE);
+        return (false);
     if((c=bufferSetEdit()) <= 0)               /* Check we can change the buffer */
         return c ;
     while (n--)
     {
-        while (inWord() == meFALSE) 
+        while (inWord() == false) 
         {
-            if(meWindowForwardChar(frameCur->windowCur, 1) == meFALSE)
-                return (meFALSE);
+            if(meWindowForwardChar(frameCur->windowCur, 1) == false)
+                return (false);
         }
-        while (inWord() != meFALSE)
+        while (inWord() != false)
         {
             c = meLineGetChar(frameCur->windowCur->dotLine, frameCur->windowCur->dotOffset);
             if (isLower(c))
@@ -158,11 +158,11 @@ upperWord(int f, int n)
                 c = toggleCase(c) ;
                 meLineSetChar(frameCur->windowCur->dotLine, frameCur->windowCur->dotOffset, c);
             }
-            if (meWindowForwardChar(frameCur->windowCur, 1) == meFALSE)
-                return (meFALSE);
+            if (meWindowForwardChar(frameCur->windowCur, 1) == false)
+                return (false);
         }
     }
-    return (meTRUE);
+    return (true);
 }
 
 /*
@@ -176,17 +176,17 @@ lowerWord(int f, int n)
     register int    c;
     
     if (n < 0)
-        return (meFALSE);
+        return (false);
     if((c=bufferSetEdit()) <= 0)               /* Check we can change the buffer */
         return c ;
     while (n--)
     {
-        while (inWord() == meFALSE) 
+        while (inWord() == false) 
         {
-            if (meWindowForwardChar(frameCur->windowCur, 1) == meFALSE)
-                return (meFALSE);
+            if (meWindowForwardChar(frameCur->windowCur, 1) == false)
+                return (false);
         }
-        while (inWord() != meFALSE)
+        while (inWord() != false)
         {
             c = meLineGetChar(frameCur->windowCur->dotLine, frameCur->windowCur->dotOffset);
             if (isUpper(c))
@@ -198,11 +198,11 @@ lowerWord(int f, int n)
                 c = toggleCase(c) ;
                 meLineSetChar(frameCur->windowCur->dotLine, frameCur->windowCur->dotOffset, c);
             }
-            if (meWindowForwardChar(frameCur->windowCur, 1) == meFALSE)
-                return (meFALSE);
+            if (meWindowForwardChar(frameCur->windowCur, 1) == false)
+                return (false);
         }
     }
-    return (meTRUE);
+    return (true);
 }
 
 /*
@@ -217,17 +217,17 @@ capWord(int f, int n)
     register int    c;
     
     if(n < 0)
-        return (meFALSE);
+        return (false);
     if((c=bufferSetEdit()) <= 0)               /* Check we can change the buffer */
         return c ;
     while (n--)
     {
-        while (inWord() == meFALSE)
+        while (inWord() == false)
         {
-            if (meWindowForwardChar(frameCur->windowCur, 1) == meFALSE)
-                return (meFALSE);
+            if (meWindowForwardChar(frameCur->windowCur, 1) == false)
+                return (false);
         }
-        if (inWord() != meFALSE) {
+        if (inWord() != false) {
             c = meLineGetChar(frameCur->windowCur->dotLine, frameCur->windowCur->dotOffset);
             if (isLower(c))
             {
@@ -238,9 +238,9 @@ capWord(int f, int n)
                 c = toggleCase(c) ;
                 meLineSetChar(frameCur->windowCur->dotLine, frameCur->windowCur->dotOffset,c);
             }
-            if (meWindowForwardChar(frameCur->windowCur, 1) == meFALSE)
-                return (meFALSE);
-            while (inWord() != meFALSE)
+            if (meWindowForwardChar(frameCur->windowCur, 1) == false)
+                return (false);
+            while (inWord() != false)
             {
                 c = meLineGetChar(frameCur->windowCur->dotLine, frameCur->windowCur->dotOffset);
                 if (isUpper(c))
@@ -252,12 +252,12 @@ capWord(int f, int n)
                     c = toggleCase(c) ;
                     meLineSetChar(frameCur->windowCur->dotLine, frameCur->windowCur->dotOffset,c);
                 }
-                if (meWindowForwardChar(frameCur->windowCur, 1) == meFALSE)
-                    return meFALSE ;
+                if (meWindowForwardChar(frameCur->windowCur, 1) == false)
+                    return false ;
             }
         }
     }
-    return meTRUE ;
+    return true ;
 }
 
 /*
@@ -273,7 +273,7 @@ forwDelWord(int f, int n)
     meUShort doto ;    
     
     if(n == 0)
-        return meTRUE ;
+        return true ;
     if(n < 0)
         return backDelWord(f,-n) ;
     
@@ -309,8 +309,8 @@ forwDelWord(int f, int n)
     frameCur->windowCur->dotOffset = doto;
     frameCur->windowCur->dotLineNo = lineno ;
     if(ldelete(size,3) <= 0)
-        return meFALSE ;
-    return ((n) ? meErrorEob():meTRUE) ;
+        return false ;
+    return ((n) ? meErrorEob():true) ;
 }
 
 /*
@@ -324,13 +324,13 @@ backDelWord(int f, int n)
     meInt size;
     
     if(n == 0)
-        return meTRUE ;
+        return true ;
     if(n < 0)
         return forwDelWord(f,-n) ;
     
     if(bufferSetEdit() <= 0)               /* Check we can change the buffer */
         return meABORT ;
-    if(meWindowBackwardChar(frameCur->windowCur, 1) == meFALSE)
+    if(meWindowBackwardChar(frameCur->windowCur, 1) == false)
         return meErrorBob() ;
     size = 0;
     /* if no argument was given then only kill the white space before the word */
@@ -362,8 +362,8 @@ backDelWord(int f, int n)
     }
 
     if(ldelete(size,3) <= 0)
-        return meFALSE ;
-    return ((n) ? meErrorBob():meTRUE) ;
+        return false ;
+    return ((n) ? meErrorBob():true) ;
 }
 
 #if MEOPT_WORDPRO
@@ -392,7 +392,7 @@ backDelWord(int f, int n)
  * reach the beginning of the line, jump back to the end of the word and start
  * a new line.  Otherwise, break the line at the word-break, eat it, and jump
  * back to the end of the word.
- * Returns meTRUE on success, meFALSE on errors.
+ * Returns true on success, false on errors.
  */
 
 int
@@ -406,7 +406,7 @@ wrapWord(int f, int n)
     
     /* Make sure we are not in no fill mode */
     if (toLower(frameCur->bufferCur->fillmode) == 'n')
-        return meTRUE;
+        return true;
     
     /* back up until we aren't in a word,
        make sure there is a break in the line */
@@ -433,7 +433,7 @@ wrapWord(int f, int n)
     {
         frameCur->windowCur->dotOffset = off ;
         if(((c = meLineGetChar(frameCur->windowCur->dotLine,off)) != ' ') && (c != meCHAR_TAB))
-            return meTRUE ;
+            return true ;
     }
     off = meLineGetLength(frameCur->windowCur->dotLine) - off ;
 #if MEOPT_HILIGHT
@@ -820,7 +820,7 @@ lookahead(meInt fillState)
             
                         /* Force an update of the screen to to ensure that the user
                          * can see the information in the correct location */
-                        update (meTRUE);
+                        update (true);
                         pokeScreen(0x10,frameCur->mainRow,frameCur->mainColumn,&scheme,(meUByte *)"<<<<<<<<<<") ;
                         status = mlCharReply((meUByte *)"Indent to <<<<<<<<<< (?/y/n/a/o) ? ",mlCR_LOWER_CASE,(meUByte *)"ynao",
                                              (meUByte *)"(Y)es, (N)o, Yes to (a)ll, N(o) to all, (C-g)Abort ? ") ;
@@ -968,8 +968,8 @@ fillPara(int f, int n)
         /* If there are no arguments then do nothing, otherwise advance the
          * paragraph. */
         if (!f)
-            return meTRUE;
-        return windowForwardParagraph(meFALSE, n) ;
+            return true;
+        return windowForwardParagraph(false, n) ;
     }
     
     /* Record if justify mode is enabled. Record in our local context Also
@@ -1022,7 +1022,7 @@ fillPara(int f, int n)
          * to go to the end of the current or next paragraph, if this
          * fails we are at the end of buffer */
         frameCur->windowCur->dotOffset = 0 ;             /* Got start of current line */
-        if (windowForwardParagraph(meFALSE, 1) <= 0)
+        if (windowForwardParagraph(false, 1) <= 0)
             break;
         
 	/* record the pointer to the line just past the EOP 
@@ -1030,7 +1030,7 @@ fillPara(int f, int n)
          * doto is at the beginning of the first word */
         eopline = frameCur->windowCur->dotLine ;
         eoplno = frameCur->windowCur->dotLineNo ;
-	windowBackwardParagraph(meFALSE, 1);
+	windowBackwardParagraph(false, 1);
         
         /* Advance to the first character in the paragraph. */
         while(!inPWord())
@@ -1277,7 +1277,7 @@ noIndent:
         }
         meAnchorDelete(frameCur->bufferCur,meANCHOR_FILL_DOT) ;
     }
-    return meTRUE ;
+    return true ;
 }
 
 /* Delete n paragraphs starting with the current one. -ve will kill 'n'
@@ -1290,7 +1290,7 @@ killPara(int f, int n)
     
     /* A zero kill then do not kill anything. */
     if(n == 0)
-        return meTRUE ;
+        return true ;
     
     /* Check we can change the buffer */
     if(bufferSetEdit() <= 0)
@@ -1323,7 +1323,7 @@ killPara(int f, int n)
     }
                
     /* Move to the appropriate paragraph position and delete the region. */
-    ss = windowForwardParagraph(meTRUE,n) ;
+    ss = windowForwardParagraph(true,n) ;
     
     /* If we commenced on a separator line then we do not need to protect the 
      * paragraph separator. */
@@ -1348,8 +1348,8 @@ killPara(int f, int n)
     }
     
     /* Kill the region containing the paragraphs */
-    if(killRegion(meTRUE,1) <= 0)
-        return meFALSE ;
+    if(killRegion(true,1) <= 0)
+        return false ;
     
     return ss ;
 }
@@ -1379,7 +1379,7 @@ countWords(int f, int n)
     size = region.size ;
     
     /* count up things */
-    lastword = meFALSE;
+    lastword = false;
     nchars = 0L;
     nwords = 0L;
     nlines = 0;
@@ -1398,7 +1398,7 @@ countWords(int f, int n)
         
         /* and tabulate it */
         wordflag = isWord(ch) ;
-        if((wordflag != meFALSE) && (lastword == meFALSE))
+        if((wordflag != false) && (lastword == false))
             ++nwords;
         lastword = wordflag;
         ++nchars;

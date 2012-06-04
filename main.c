@@ -138,7 +138,7 @@ meInit(meUByte *bname)
 {
     meBuffer *bp;
 
-    if (TTstart() == meFALSE)             /* Started ?? */
+    if (TTstart() == false)             /* Started ?? */
         meExit(1) ;
 
     /* add 2 to hilBlockS to allow for a double trunc-scheme change
@@ -211,21 +211,21 @@ insertChar(register int c, register int n)
         if(n == 1)
         {
             if(lineInsertChar(1,c) <= 0)
-                return meFALSE ;
+                return false ;
             meUndoAddInsChar() ;
         }
         else
         {
             if(lineInsertChar(n, c) <= 0)
-                return meFALSE ;
+                return false ;
             meUndoAddInsChars(n) ;
         }
 #else
         if(lineInsertChar(n, c) <= 0)
-            return meFALSE ;
+            return false ;
 #endif
     }
-    return meTRUE ;
+    return true ;
 }
 
 /*
@@ -335,7 +335,7 @@ execute(register int c, register int f, register int n)
         c &= ~(ME_SHIFT|ME_CONTROL|ME_ALT) ;
         if(((c >= (ME_SPECIAL|SKEY_mouse_move)) && (c <= (ME_SPECIAL|SKEY_mouse_move_3))) ||
            ((c >= (ME_SPECIAL|SKEY_mouse_time)) && (c <= (ME_SPECIAL|SKEY_mouse_time_3))) )
-            return meTRUE ;
+            return true ;
 #endif
         return mlwrite(MWABORT,(meUByte *)"[Key not bound \"%s\"]", outseq); /* complain */
     }
@@ -343,12 +343,12 @@ execute(register int c, register int f, register int n)
     if (n <= 0)            /* Fenceposts.          */
     {
         lastflag = 0;
-        return (cmdstatus = ((n<0) ? meFALSE : meTRUE));
+        return (cmdstatus = ((n<0) ? false : true));
     }
     thisflag = 0;          /* For the future.      */
 
     if(bufferSetEdit() <= 0)               /* Check we can change the buffer */
-        return (cmdstatus = meFALSE) ;
+        return (cmdstatus = false) ;
 
 #if MEOPT_WORDPRO
     /* If a space was  typed, fill column is  defined, the argument is non-
@@ -360,12 +360,12 @@ execute(register int c, register int f, register int n)
        (frameCur->bufferCur->fillcol > 0) && (n >= 0) &&
        (getccol() > frameCur->bufferCur->fillcol) &&
        !meModeTest(frameCur->bufferCur->mode,MDVIEW))
-        wrapWord(meFALSE, 1);
+        wrapWord(false, 1);
 #endif
 
     /* insert the required number of chars */
     if(insertChar(c,n) <= 0)
-        return (cmdstatus = meFALSE) ;
+        return (cmdstatus = false) ;
 
 #if MEOPT_HILIGHT
     if(frameCur->bufferCur->indent && (meHilightGetFlags(indents[frameCur->bufferCur->indent]) & HIGFBELL))
@@ -416,12 +416,12 @@ execute(register int c, register int f, register int n)
     {
         frameCur->windowCur->dotOffset-- ;
         /* flag for delay move and only bell in cmode */
-        gotoFence(meTRUE,(frameCur->bufferCur->indent && (meHilightGetFlags(indents[frameCur->bufferCur->indent]) & HIGFBELL)) ? 3:2) ;
+        gotoFence(true,(frameCur->bufferCur->indent && (meHilightGetFlags(indents[frameCur->bufferCur->indent]) & HIGFBELL)) ? 3:2) ;
         frameCur->windowCur->dotOffset++ ;
     }
 #endif
     lastflag = thisflag;
-    return (cmdstatus = meTRUE) ;
+    return (cmdstatus = true) ;
 }
 
 /*
@@ -478,7 +478,7 @@ meAbout(int f, int n)
     int     ii ;
 
     if((wp = meWindowPopup(BaboutN,BFND_CREAT|BFND_CLEAR|WPOP_USESTR,NULL)) == NULL)
-        return meFALSE ;
+        return false ;
     bp = wp->buffer ;
 
      /* definitions in evers.h */
@@ -512,7 +512,7 @@ meAbout(int f, int n)
     meModeClear(bp->mode,MDEDIT);     /* don't flag this as a change */
     meModeSet(bp->mode,MDVIEW);       /* put this buffer view mode */
     resetBufferWindows(bp) ;
-    return meTRUE ;
+    return true ;
 }
 
 /*
@@ -530,7 +530,7 @@ exitEmacs(int f, int n)
     if(n & 0x04)
     {
         if(meGetString((meUByte *)"Exit code", 0, 0, (meUByte *) buff,128) <= 0)
-            return meFALSE ;
+            return false ;
         ec = meAtoi(buff) ;
     }
     else
@@ -545,10 +545,10 @@ exitEmacs(int f, int n)
         || (dictionarySave(f,2|(n & 0x01)) <= 0)
 #endif
 #if MEOPT_REGISTRY
-        || (saveRegistry(f,2|(n & 0x01)) <= meFALSE)
+        || (saveRegistry(f,2|(n & 0x01)) <= false)
 #endif
        ))
-        return meFALSE ;
+        return false ;
 
     s = 1 ;
     if(n & 0x01)
@@ -698,7 +698,7 @@ exitEmacs(int f, int n)
                 zotbuf(bc,1) ;
                 bc = bn ;
             }
-            addFileHook(meTRUE,0) ;
+            addFileHook(true,0) ;
 
             dictionaryDelete(1,6) ;
             spellRuleAdd(1,0) ;
@@ -986,18 +986,18 @@ rdonly(void)
 int
 voidFunc(int f, int n)
 {
-    return ((n) ? meTRUE:meFALSE) ;
+    return ((n) ? true:false) ;
 }
 
 int
 prefixFunc(int f, int n) /* dummy prefix function */
 {
-    return meTRUE ;
+    return true ;
 }
 int
 uniArgument(int f, int n)         /* dummy function for binding to universal-argument */
 {
-    return meTRUE ;
+    return true ;
 }
 
 #ifdef _UNIX
@@ -1120,7 +1120,7 @@ doOneKey(void)
     register int    mflag;
     int     basec;              /* c stripped of meta character   */
 
-    update(meFALSE);                          /* Fix up the screen    */
+    update(false);                          /* Fix up the screen    */
 
     /*
      * If we are not playing or recording a macro. This is the ONLY place
@@ -1133,19 +1133,19 @@ doOneKey(void)
     if (kbdmode == meSTOP)
         kbdmode = meIDLE;             /* In an idle state  */
 
-    c = meGetKeyFromUser(meFALSE, 1, meGETKEY_COMMAND);     /* Get a key */
+    c = meGetKeyFromUser(false, 1, meGETKEY_COMMAND);     /* Get a key */
 
     if (frameCur->mlStatus & MLSTATUS_CLEAR)
         mlerase(MWCLEXEC) ;
 
-    f = meFALSE;
+    f = false;
     n = 1;
 
     /* do ME_PREFIX1-# processing if needed */
     basec = c & ~ME_PREFIX1 ;        /* strip meta char off if there */
     if((c & ME_PREFIX1) && (((basec >= '0') && (basec <= '9')) || (basec == '`') || (basec == '-')))
     {
-        f = meTRUE;
+        f = true;
         if(basec == '-')
         {
             mflag = -1 ;
@@ -1161,7 +1161,7 @@ doOneKey(void)
             mflag = 1 ;
             n = basec - '0' ;
         }
-        while((c=meGetKeyFromUser(meTRUE,(n * mflag),meGETKEY_COMMAND)) >= '0')
+        while((c=meGetKeyFromUser(true,(n * mflag),meGETKEY_COMMAND)) >= '0')
         {
             if(c <= '9')
                 n = n * 10 + (c - '0');
@@ -1176,7 +1176,7 @@ doOneKey(void)
     /* do ^U repeat argument processing */
     if(c == reptc)
     {                           /* ^U, start argument   */
-        f = meTRUE;               /* In case not set */
+        f = true;               /* In case not set */
         mflag = 1;              /* current minus flag */
         for(;;c = meGetKeyFromUser(f,n,meGETKEY_COMMAND))
         {
@@ -1205,7 +1205,7 @@ doOneKey(void)
                  * get the next key, if a digit, update the
                  * count note that we do not handle "-" here
                  */
-                c = meGetKeyFromUser(meTRUE,(mflag*n),meGETKEY_COMMAND);
+                c = meGetKeyFromUser(true,(mflag*n),meGETKEY_COMMAND);
                 if(c >= '0' && c <= '9')
                     n = n * 10 + (c - '0');
                 else
@@ -1215,7 +1215,7 @@ doOneKey(void)
         }
     }
 
-    if(f == meTRUE)        /* Zap count from cmd line ? */
+    if(f == true)        /* Zap count from cmd line ? */
         mlerase(MWCLEXEC);
     commandDepth++ ;
     execute(c, f, n) ;   /* Do it. */
@@ -1519,7 +1519,7 @@ missing_arg:
                             meExit(1) ;
                         }
                         execstr = NULL ;
-                        clexec = meFALSE ;
+                        clexec = false ;
                     }
                     break ;
                 }
@@ -1669,7 +1669,7 @@ missing_arg:
     {
         extern void TTdump(meBuffer *) ;
         TTdump(frameCur->bufferCur) ;
-        windowGotoBob(meFALSE,1) ;
+        windowGotoBob(false,1) ;
         carg++ ;
     }
 #endif
@@ -1678,7 +1678,7 @@ missing_arg:
     /* disable screen updates to reduce the flickering and startup time */
     screenUpdateDisabledCount = -9999 ;
     /* run me.emf unless an @... arg was given in which case run that */
-    execFile(file,meTRUE,noFiles) ;
+    execFile(file,true,noFiles) ;
 
     /* initalize *scratch* colors & modes to global defaults & check for a hook */
     if((mainbp=bfind(BmainN,0)) != NULL)
@@ -1842,10 +1842,10 @@ handle_stdin:
             swbuffer(frameCur->windowCur,bp) ;
 	    mainbp->histNo = -1 ;
             if((noFiles > 1) && ((bp = replacebuffer(NULL)) != mainbp) &&
-               (windowSplitDepth(meTRUE,2) > 0))
+               (windowSplitDepth(true,2) > 0))
             {
                 swbuffer(frameCur->windowCur,replacebuffer(NULL)) ;
-                windowGotoPrevious(meFALSE,1) ;
+                windowGotoPrevious(false,1) ;
             }
         }
     }
@@ -1893,11 +1893,11 @@ handle_stdin:
     /* Set the screen for a redraw at this point cos its after the
      * startup which can screw things up
      */
-    sgarbf = meTRUE;			 /* Erase-page clears */
+    sgarbf = true;			 /* Erase-page clears */
 
     carg = decode_fncname((meUByte *)"start-up",1) ;
     if(carg >= 0)
-        execFunc(carg,meFALSE,1) ;
+        execFunc(carg,false,1) ;
 }
 
 #ifndef NDEBUG
@@ -1953,18 +1953,18 @@ commandWait(int f, int n)
     if(f && n)
     {
         f = clexec ;
-        clexec = meFALSE ;
+        clexec = false ;
         if(n < 0)
             TTsleep(0-n,1,NULL) ;
         else
             TTsleep(n,0,NULL) ;
         clexec = f ;
-        return meTRUE ;
+        return true ;
     }
     if((meRegCurr->commandName == NULL) ||
        ((f=decode_fncname(meRegCurr->commandName,1)) < 0) ||
        ((varList = &(cmdTable[f]->varList)) == NULL))
-        return meTRUE ;
+        return true ;
 
     if(n == 0)
     {
@@ -1974,13 +1974,13 @@ commandWait(int f, int n)
     {
         clexecSv = clexec;
         execlevelSv = execlevel ;
-        clexec = meFALSE ;
+        clexec = false ;
         execlevel = 0 ;
         do
         {
             /* Fix up the screen before waiting for input otherwise TTahead
              * will be true and the screen will never be refreshed - test with gdiff */
-            update(meFALSE);
+            update(false);
             TTsleep(-1,1,varList) ;
             if(((ss=getUsrLclCmdVar((meUByte *)"wait",varList)) == errorm) || !meAtoi(ss))
                 break ;
@@ -1997,7 +1997,7 @@ commandWait(int f, int n)
         clexec = clexecSv ;
         execlevel = execlevelSv ;
     }
-    return meTRUE ;
+    return true ;
 }
 #endif
 
@@ -2042,7 +2042,8 @@ main(int argc, char *argv[])
                 meFrameMakeCur(dadp->frame, 1);
 #endif
 
-#if MEOPT_MOUSE
+#if MEOPT_MOUSE && !_NANOEMACS
+
                 /* Re-position the mouse */
                 mouse_X = clientToCol (dadp->mouse_x);
                 mouse_Y = clientToRow (dadp->mouse_y);
@@ -2052,7 +2053,7 @@ main(int argc, char *argv[])
                     mouse_Y = frameCur->depth;
 
                 /* Find the window with the mouse */
-                setCursorToMouse (meFALSE, 0);
+                setCursorToMouse (false, 0);
 #endif
 #if MEOPT_EXTENDED
                 /* if the current window is locked to a buffer find another */

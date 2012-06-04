@@ -41,7 +41,7 @@ getBufferName(meUByte *prompt, int opt, int defH, meUByte *buf)
     /* Only setup the history to a specific buffer if we're
      * told to and we're not running a macro
      */
-    if(defH && (clexec != meTRUE))
+    if(defH && (clexec != true))
     {
         register meBuffer *bp ;
         if(defH == 1)
@@ -100,20 +100,20 @@ addFileHook(int f, int n)
            ((fileHookArg = meRealloc(fileHookArg,(fileHookCount+1)*sizeof(short))) == NULL))
         {
             fileHookCount=0 ;
-            return meFALSE ;
+            return false ;
         }
         if((meGetString((meUByte *)"File id",0,0,buff,meBUF_SIZE_MAX) <= 0) ||
            ((fileHookExt[fileHookCount] = meStrdup(buff)) == NULL) ||
            (meGetString((meUByte *)"Hook func",0,0,buff,meBUF_SIZE_MAX) <= 0) ||
            ((fileHookFunc[fileHookCount] = meStrdup(buff)) == NULL))
-            return meFALSE ;
-        if(f == meFALSE)
+            return false ;
+        if(f == false)
             fileHookArg[fileHookCount] = 0 ;
         else
             fileHookArg[fileHookCount] = n ;
         fileHookCount++ ;
     }
-    return meTRUE ;
+    return true ;
 }
 
 /* Check extent.
@@ -402,7 +402,7 @@ swbuffer(meWindow *wp, meBuffer *bp)        /* make buffer BP current */
             tbp = bheadp ;
             while(tbp != bp)
                 if((tbp=tbp->next) == NULL)
-                    return meFALSE ;
+                    return false ;
         }
 #endif
     }
@@ -461,7 +461,7 @@ swbuffer(meWindow *wp, meBuffer *bp)        /* make buffer BP current */
         {
             if(markLineNo > 0)
             {
-                windowGotoLine(meTRUE,markLineNo) ;
+                windowGotoLine(true,markLineNo) ;
                 frameCur->windowCur->markLine = frameCur->windowCur->dotLine;
                 frameCur->windowCur->markLineNo = frameCur->windowCur->dotLineNo;
                 if(markCol > 0)
@@ -472,7 +472,7 @@ swbuffer(meWindow *wp, meBuffer *bp)        /* make buffer BP current */
                         frameCur->windowCur->markOffset = markCol ;
                 }
             }
-	    windowGotoLine(meTRUE,dotLineNo) ;
+	    windowGotoLine(true,dotLineNo) ;
             if(dotCol > 0)
             {
                 if(dotCol > meLineGetLength(frameCur->windowCur->dotLine))
@@ -526,7 +526,7 @@ swbuffer(meWindow *wp, meBuffer *bp)        /* make buffer BP current */
         bp->intFlag &= ~BIFLOAD ;
 	if(bufferOutOfDate(bp))
 	{
-            update(meTRUE) ;
+            update(true) ;
             dotLineNo = wp->dotLineNo ;
             if(((bp->fileFlag & meBFFLAG_DIR) || (mlyesno((meUByte *)"File changed on disk, reload") > 0)) &&
                (bclear(bp) > 0))
@@ -544,7 +544,7 @@ swbuffer(meWindow *wp, meBuffer *bp)        /* make buffer BP current */
 	else
 	    mlwrite(MWCLEXEC,(meUByte *)"[Old buffer]");
     }
-    return meTRUE ;
+    return true ;
 }
 
 
@@ -580,11 +580,11 @@ HideBuffer(meBuffer *bp, int forceAll)
 #if MEOPT_FILEHOOK
                             setBufferContext(bp) ;
 #endif
-                            return meFALSE ;
+                            return false ;
                         }
                         
                         if(swbuffer(wp, bp1) <= 0)
-                            return meFALSE ;
+                            return false ;
                     }
                 }
             }
@@ -595,7 +595,7 @@ HideBuffer(meBuffer *bp, int forceAll)
     }
     bp->histNo = 0 ;
     
-    return meTRUE ;
+    return true ;
 }
 
 
@@ -637,7 +637,7 @@ findBuffer(int f, int n)
         {
             if(((n & 5) != 5) ||
                ((bp = bfind(bufn,BFND_CREAT)) == NULL))
-                return meFALSE ;
+                return false ;
             meModeSet(bp->mode,MDNACT) ;
             bp->fileName = meStrdup(bufn) ;
             bp->intFlag |= BIFFILE ;
@@ -651,7 +651,7 @@ findBuffer(int f, int n)
         else
             f = 0 ;
         if((bp = bfind(bufn,f)) == NULL)
-            return meFALSE ;
+            return false ;
     }
     if(n & 8)
         return HideBuffer(bp,(n & 16) ? 1:0) ;
@@ -685,7 +685,7 @@ nextWndFindBuf(int f, int n)
 	n = BFND_CREAT ;
     if((meWindowPopup(NULL,WPOP_MKCURR,NULL) == NULL) ||
        ((bp=bfind(bufn,n)) == NULL))
-	return meFALSE ;
+	return false ;
     return swbuffer(frameCur->windowCur, bp) ;
 }
 #endif
@@ -728,7 +728,7 @@ nextBuffer(int f, int n)   /* switch to the next buffer in the buffer list */
         }
     }
     if(bp == frameCur->bufferCur)
-        return meTRUE ;
+        return true ;
     return(swbuffer(frameCur->windowCur,bp));
 }
 
@@ -819,7 +819,7 @@ resetBufferWindows(meBuffer *bp)
  * to save the user the grief of losing text. The
  * window chain is nearly always wrong if this gets
  * called; the caller must arrange for the updates
- * that are required. Return meTRUE if everything
+ * that are required. Return true if everything
  * looks good.
  */
 /* Note for Dynamic file names
@@ -982,7 +982,7 @@ bclear(register meBuffer *bp)
     }
 #endif
     resetBufferWindows(bp) ;
-    return meTRUE ;
+    return true ;
 }
 
 
@@ -1059,7 +1059,7 @@ zotbuf(register meBuffer *bp, int silent) /* kill the buffer pointed to by bp */
     */
     if(HideBuffer(bp,1) <= 0)
 	/* only scratch left */
-	return meTRUE ;
+	return true ;
     
     meFree(bp->baseLine);             /* Release header line. */
     unlinkBuffer(bp) ;
@@ -1075,7 +1075,7 @@ zotbuf(register meBuffer *bp, int silent) /* kill the buffer pointed to by bp */
 	mlwrite(0,(meUByte *)"[buffer %s killed]", bp->name);
     meNullFree(bp->name) ;
     meFree(bp);                             /* Release buffer block */
-    return meTRUE ;
+    return true ;
 }
 
 /*
@@ -1126,7 +1126,7 @@ deleteSomeBuffers(int f, int n)
             if((n & 0x06) == 0)
             {
                 if((s = mlCharReply((meUByte *)"Delete buffers not yet active (?/y/n/a) ? ",mlCR_LOWER_CASE,(meUByte *)"yna",(meUByte *)"(Y)es, (N)o, Yes to (a)ll, (C-g)Abort ? ")) < 0)
-                    return ctrlg(meFALSE,1) ;
+                    return ctrlg(false,1) ;
                 if(s == 'n')
                     break ;
                 n |= (s == 'a') ? 2:4 ;
@@ -1143,19 +1143,19 @@ deleteSomeBuffers(int f, int n)
 	if(!meModeTest(bp->mode,MDHIDE))
 	{
 	    if(n & 0x02)
-                s = meTRUE ;
+                s = true ;
             else
             {
                 sprintf((char *)prompt,"Delete buffer [%s]  (?/y/n/a) ? ",bp->name) ;
                 if((s = mlCharReply(prompt,mlCR_LOWER_CASE,(meUByte *)"yna",(meUByte *)"(Y)es, (N)o, Yes to (a)ll, (C-g)Abort ? ")) < 0)
-                    return ctrlg(meFALSE,1) ;
+                    return ctrlg(false,1) ;
                 if(s == 'n')
-                    s = meFALSE ;
+                    s = false ;
                 else
                 {
                     if(s == 'a')
                         n |= 2 ;
-                    s = meTRUE ;
+                    s = true ;
                 }
             }
             if(s)
@@ -1168,7 +1168,7 @@ deleteSomeBuffers(int f, int n)
 	}
 	bp = nbp ;
     }
-    return meTRUE ;
+    return true ;
 }
 
 int
@@ -1222,7 +1222,7 @@ changeBufName(int f, int n)     /*      Rename the current buffer       */
     bp1->name = nn ;
     linkBuffer(bp1) ;
     
-    return meTRUE ;
+    return true ;
 }
 #endif
 
@@ -1231,9 +1231,9 @@ changeBufName(int f, int n)     /*      Rename the current buffer       */
  * The argument "text" points to
  * a string. Append this line to the
  * given buffer. Handcraft the EOL
- * on the end. Return meTRUE if it worked and
- * meFALSE if you ran out of room.
- * if pos is meTRUE then insert to current line
+ * on the end. Return true if it worked and
+ * false if you ran out of room.
+ * if pos is true then insert to current line
  * else to the end of the buffer
  */
 int 
@@ -1269,8 +1269,8 @@ addLine(register meLine *ilp, meUByte *text)
  * This routine rebuilds the
  * text in the given buffer
  * that holds the buffer list. It is called
- * by the list buffers command. Return meTRUE
- * if everything works. Return meFALSE if there
+ * by the list buffers command. Return true
+ * if everything works. Return false if there
  * is an error (if there is no memory).
  */
 static void
@@ -1450,31 +1450,31 @@ listBuffers (int f, int n)
     
     resetBufferWindows(bp) ;
     meWindowPopup(bp->name,WPOP_USESTR,NULL) ;
-    return meTRUE ;
+    return true ;
 }
 
 /*
 ** Returns :-
-** meTRUE  if the given buffer needs saving
-** meFALSE if it doesnt
+** true  if the given buffer needs saving
+** false if it doesnt
  */
 int
 bufferNeedSaving(meBuffer *bp)
 {
     /* If changed (edited) and valid buffer name (not system) */
     if(meModeTest(bp->mode,MDEDIT) && (bp->name[0] != '*'))
-	return meTRUE ;
-    return meFALSE ;
+	return true ;
+    return false ;
 }
 
 /*
  * Look through the list of
- * buffers. Return meTRUE if there
+ * buffers. Return true if there
  * are any changed buffers. Buffers
  * that hold magic internal stuff are
  * not considered; who cares if the
  * list of buffer names is hacked.
- * Return meFALSE if no buffers
+ * Return false if no buffers
  * have been changed.
  */
 int
@@ -1486,10 +1486,10 @@ anyChangedBuffer(void)
     while (bp != NULL)
     {
 	if(bufferNeedSaving(bp))
-	    return (meTRUE);
+	    return (true);
 	bp = bp->next;
     }
-    return (meFALSE);
+    return (false);
 }
 
 meBuffer *
@@ -1558,7 +1558,7 @@ createBuffer(register meUByte *bname)
  * Find a buffer, by name. Return a pointer
  * to the meBuffer structure associated with it.
  * If the buffer is not found
- * and the "cflag" is meTRUE, create it. The "bflag" is
+ * and the "cflag" is true, create it. The "bflag" is
  * the settings for the flags in in buffer.
  */
 meBuffer *
@@ -1681,7 +1681,7 @@ adjustMode(meBuffer *bp, int nn)  /* change the editor mode status */
 	
 	/* prompt the user and get an answer */
 	if(meGetString(prompt, MLLOWER|MLUSER, 0, cbuf, meSBUF_SIZE_MAX) == meABORT)
-	    return meFALSE ;
+	    return false ;
     
 	/* test it against the modes we know */
 	for (nn=0; nn < MDNUMMODES ; nn++) 
@@ -1735,7 +1735,7 @@ adjustMode(meBuffer *bp, int nn)  /* change the editor mode status */
         if((func == 0) && !clexec)
             mlwrite(0,(meUByte *)"[Buffer edit mode is now %s]",
                     meModeTest(bp->mode,MDEDIT) ? "on":"off");
-	return meTRUE ;
+	return true ;
 	
     case MDLOCK:
 	if((bp == NULL) || !meModeTest(bp->mode,MDPIPE)) 
@@ -1795,7 +1795,7 @@ invalid_global:
         /* update  mode line in all buffer windows */
         meBufferAddModeToWindows(bp,WFMODE) ;
     }    
-    return meTRUE ;
+    return true ;
 }
    
 int     
